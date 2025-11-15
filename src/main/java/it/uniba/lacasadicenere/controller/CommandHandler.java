@@ -27,7 +27,9 @@ import it.uniba.lacasadicenere.type.CommandAction;
 public class CommandHandler {
     
     private Game game;
+    
     private final HashMap<CommandKey, CommandAction> commandMap;
+    
     private Engine gameLogic;
 
     /**
