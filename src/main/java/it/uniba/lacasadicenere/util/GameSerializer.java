@@ -84,6 +84,11 @@ public class GameSerializer {
         Map<String, Room> rooms = new HashMap<>();
 
         try {
+            Path gamePath = Paths.get(gameFilePath);
+            if (gameFilePath.endsWith("LoadedGame.json") && !Files.exists(gamePath)) {
+                return new HashMap<>(); 
+            }
+            
             byte[] fileBytes = Files.readAllBytes(Paths.get(gameFilePath));
             if (fileBytes.length == 0) return new HashMap<>();
 
@@ -131,6 +136,11 @@ public class GameSerializer {
         }
 
         try {
+            Path itemsPath = Paths.get(itemsFilePath);
+            if (itemsFilePath.endsWith("LoadedItems.json") && !Files.exists(itemsPath)) {
+                return items; 
+            }
+            
             byte[] fileBytes = Files.readAllBytes(Paths.get(itemsFilePath));
             if(fileBytes.length == 0) {
                 return items; 

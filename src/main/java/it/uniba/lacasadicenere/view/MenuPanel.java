@@ -233,7 +233,7 @@ public class MenuPanel extends JPanel {
         new Thread(() -> InputService.setUpGameFlow(game)).start();
         
         CardLayout cl = (CardLayout) getParent().getLayout();
-        cl.show(getParent(), "GameGUI");
+        cl.show(getParent(), "GamePanel");
         
         Timer timer = new Timer(1000, e -> {
             GamePanel.updateInventoryTextArea(
@@ -273,7 +273,7 @@ public class MenuPanel extends JPanel {
         if(loadedGameSuccessfully) {
             Game game = Game.getInstance();
             CardLayout cl = (CardLayout) getParent().getLayout();
-            cl.show(getParent(), "GameGUI");
+            cl.show(getParent(), "GamePanel");
             
             new Thread(() -> InputService.setUpLoadedGameFlow(game)).start();
         } else {

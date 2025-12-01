@@ -312,7 +312,7 @@ public class GamePanel extends JPanel {
      */
     public void goBack() {
         CardLayout cl = (CardLayout) getParent().getLayout();
-        cl.show(getParent(), "MenuGUI");
+        cl.show(getParent(), "MenuPanel");
         displayTextPane.setText("");
         inventoryTextArea.setText(" Inventario:\n");
         userInputField.setText("");

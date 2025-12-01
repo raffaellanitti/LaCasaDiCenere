@@ -214,7 +214,6 @@ public class GameInitializer {
 
             try (FileWriter writer = new FileWriter(filePath)) {
                 writer.write(jsonContent);
-                System.out.println("ok" + filePath);
             }
         } catch (IOException e) {
             System.err.println("Errore durante la scrittura di: " + filePath);

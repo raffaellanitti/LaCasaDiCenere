@@ -30,7 +30,7 @@ public class CommandHandler {
     
     private final HashMap<CommandKey, CommandAction> commandMap;
     
-    private Engine engine;
+    private Engine gameLogic;
 
     /**
      * Crea un comportamento per i comandi di movimento direzionale.
@@ -60,7 +60,7 @@ public class CommandHandler {
     */
     public CommandHandler(Game game) {
         this.game = game;
-        this.engine = new Engine(game);
+        this.gameLogic = new Engine(game);
         commandMap = new HashMap<>();
     
         commandMap.put(new CommandKey(CommandType.NORD, 0),
@@ -102,7 +102,7 @@ public class CommandHandler {
                 if(p.getItem1().isPickable()) {
                     game.addInventory(p.getItem1());
                     game.getCurrentRoom().removeItem(p.getItem1().getName());
-                    engine.postPickUp(p.getItem1());
+                    gameLogic.postPickUp(p.getItem1());
                     OutputService.displayText("Hai raccolto " + p.getItem1().getName() + ".");
                 } else {
                     OutputService.displayText(p.getItem1().getName() + " non può essere raccolto.");
@@ -114,12 +114,12 @@ public class CommandHandler {
 
             if (parentContainer != null) {
                 if (p.getItem1().isPickable()) { 
-                    if (!engine.canPickUp(p.getItem1(), parentContainer)) {
+                    if (!gameLogic.canPickUp(p.getItem1(), parentContainer)) {
                         return; 
                     }
                     parentContainer.remove(p.getItem1()); 
                     game.addInventory(p.getItem1());
-                    engine.postPickUpFromContainer(p.getItem1(), parentContainer); 
+                    gameLogic.postPickUpFromContainer(p.getItem1(), parentContainer); 
                     OutputService.displayText("Hai preso " + p.getItem1().getName() + " da " + parentContainer.getName() + ".");
                 } else {
                     OutputService.displayText("Non puoi raccogliere " + p.getItem1().getName() + ".");
@@ -132,7 +132,7 @@ public class CommandHandler {
         commandMap.put(new CommandKey(CommandType.USA, 1),
         p -> {
             if(game.getInventory().contains(p.getItem1())) {
-                boolean used = engine.useSingle(p.getItem1());
+                boolean used = gameLogic.useSingle(p.getItem1());
                 if(!used) {
                     OutputService.displayText("Non succede nulla usando " + p.getItem1().getName() + ".");
                     return;
@@ -163,7 +163,7 @@ public class CommandHandler {
                 return;
             }
                     
-            boolean used = engine.useDouble(p.getItem1(), p.getItem2());
+            boolean used = gameLogic.useDouble(p.getItem1(), p.getItem2());
             if(!used) {
                 OutputService.displayText("Non succede nulla usando " + 
                     p.getItem1().getName() + " con " + p.getItem2().getName() + ".");
@@ -183,7 +183,7 @@ public class CommandHandler {
             }
             OutputService.displayText("Hai lasciato " + p.getItem1().getName() + " nella stanza.");
 
-            engine.checkEndGame();
+            gameLogic.checkEndGame();
         });
     }
     
