@@ -129,14 +129,14 @@ public class GamePanel extends JPanel {
         toolBar.add(Box.createHorizontalStrut(5));
 
         // --- BUTTONS ---
-        setupButton(toggleMapButton, "⨅", COLD_LIGHT, COLD_SELECT_COLOR, DARK_FOG_CONTENT, 16);
-        toggleMapButton.addActionListener(this::toggleMapButtonActionPerformed);
-        toolBar.add(toggleMapButton);
-        toolBar.add(Box.createHorizontalStrut(10));
-
         setupButton(goBackButton, "<", COLD_LIGHT, COLD_SELECT_COLOR, DARK_FOG_CONTENT, 14);
         goBackButton.addActionListener(this::goBackButtonActionPerformed);
         toolBar.add(goBackButton);
+        toolBar.add(Box.createHorizontalStrut(10));
+
+        setupButton(toggleMapButton, "⨅", COLD_LIGHT, COLD_SELECT_COLOR, DARK_FOG_CONTENT, 16);
+        toggleMapButton.addActionListener(this::toggleMapButtonActionPerformed);
+        toolBar.add(toggleMapButton);
         toolBar.add(Box.createHorizontalStrut(10));
 
         setupButton(saveGameButton, "Salva", COLD_LIGHT, COLD_SELECT_COLOR, DARK_FOG_CONTENT, 14);
