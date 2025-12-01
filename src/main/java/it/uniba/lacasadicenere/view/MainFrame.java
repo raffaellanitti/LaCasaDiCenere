@@ -40,8 +40,8 @@ public class MainFrame extends JFrame {
         MenuPanel menu = new MenuPanel();
         game = new GamePanel();
 
-        cards.add(menu, "MenuGUI");
-        cards.add(game, "GameGUI");
+        cards.add(menu, "MenuPanel");
+        cards.add(game, "GamePanel");
 
         add(cards);
         pack();
