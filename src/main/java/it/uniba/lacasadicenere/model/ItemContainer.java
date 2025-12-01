@@ -13,6 +13,8 @@ public class ItemContainer extends Item {
      */
     private List<Item> list = new ArrayList<>();
 
+    private boolean isOpen = false;
+
     /**
      * Costruttore dell'oggetto ItemContainer.
      * @param name
@@ -20,7 +22,7 @@ public class ItemContainer extends Item {
      * @param pickable
      * @param aliases
      */
-    public ItemContainer(String name, String description,  boolean pickable, List<String> aliases) {
+    public ItemContainer(String name, String description, boolean pickable, List<String> aliases) {
         super(name, description, pickable, aliases);
     }
 
@@ -55,4 +57,20 @@ public class ItemContainer extends Item {
     public void remove(Item item) {
         list.remove(item);
     }
+    /**
+     * Verifica se il contenitore è aperto.
+     * @return true se aperto, false se chiuso
+     */
+    public boolean isOpen() {
+        return isOpen;
+    }
+    
+    /**
+     * Imposta lo stato di apertura del contenitore.
+     * @param open true per aprire, false per chiudere
+     */
+    public void setOpen(boolean open) {
+        this.isOpen = open;
+    }
+    
 }

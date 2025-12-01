@@ -114,12 +114,8 @@ public class CommandHandler {
 
             if (parentContainer != null) {
                 if (p.getItem1().isPickable()) { 
-                    if (!gameLogic.canPickUp(p.getItem1(), parentContainer)) {
-                        return; 
-                    }
                     parentContainer.remove(p.getItem1()); 
                     game.addInventory(p.getItem1());
-                    gameLogic.postPickUpFromContainer(p.getItem1(), parentContainer); 
                     OutputService.displayText("Hai preso " + p.getItem1().getName() + " da " + parentContainer.getName() + ".");
                 } else {
                     OutputService.displayText("Non puoi raccogliere " + p.getItem1().getName() + ".");

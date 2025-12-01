@@ -8,7 +8,6 @@ package it.uniba.lacasadicenere.controller;
 import it.uniba.lacasadicenere.model.Game;
 import it.uniba.lacasadicenere.model.Item;
 import it.uniba.lacasadicenere.model.ItemContainer;
-import it.uniba.lacasadicenere.service.OutputService;
 import it.uniba.lacasadicenere.database.DatabaseH2;
 import it.uniba.lacasadicenere.service.MirrorGame;
 import it.uniba.lacasadicenere.service.InputService;
@@ -24,26 +23,6 @@ public class Engine {
      */
     private Game game;
     
-    /**
-     * Flag per tracciare se lo scrigno è stato aperto
-     */
-    private boolean open = false;
-    
-    /**
-     * Getter per verificare se lo scrigno è aperto
-     * @return 
-     */
-    public boolean isOpen() {
-        return open;
-    }
-    
-    /**
-     * Setter per impostare lo stato dello scrigno 
-     * @param open 
-     */
-    public void setOpen(boolean open) {
-        this.open = open;
-    }
     /**
      * Costrutture della classe GameLogic
      * @param game 
@@ -73,6 +52,7 @@ public class Engine {
      * @return true se l'azione è stata eseguita con successo, false altrimenti
      */
     public boolean useDouble(Item item1, Item item2) {
+        // Uso dei fiammiferi sulla candela nella Stanza1
         if(item1.hasName("Fiammiferi") && item2.hasName("Candela") && game.getCurrentRoom().getName().equals("Stanza1")) {
             if (!game.getInventory().contains(item2)) {
                 return false; 
@@ -84,6 +64,7 @@ public class Engine {
             return true;
         }
 
+        // Uso della chiave sullo scrigno nella Stanza2
         if(item1.hasName("Chiave") && item2.hasName("Scrigno") && game.getCurrentRoom().getName().equals("Stanza2")) {
             Item scrigno = game.getCurrentRoom().getItems().stream()
                     .filter(item -> item.hasName("Scrigno"))
@@ -95,52 +76,39 @@ public class Engine {
             }
 
             ItemContainer scrignoContainer = (ItemContainer) scrigno;
-                if(scrignoContainer.getList() == null || scrignoContainer.getList().isEmpty()) {
+            
+            if(scrignoContainer.getList() == null || scrignoContainer.getList().isEmpty()) {
                 return false; 
             }
+
+            scrignoContainer.setOpen(true);
+
+            for (Item contained : scrignoContainer.getList()) {
+                game.getCurrentRoom().addItems(contained);
+            }
+            scrignoContainer.getList().clear();
+
             game.removeInventory(item1);
-            open = true;
             DatabaseH2.printFromDB("Usa", game.getCurrentRoom().getName(), 
             "true", "Chiave", "Scrigno");
             return true;
         }
         return false;
     }
-    
-    /**
-     * Metodo per verificare se un oggetto può essere preso da un contenitore.
-     * @param i
-     * @param parentContainer
-     * @return true se l'oggetto può essere preso, false altrimenti
-     */
-    public boolean canPickUp(Item i, ItemContainer parentContainer) {
-        if (i.hasName("Amuleto") && parentContainer.hasName("Scrigno")) {
-            if (!open) {
-                OutputService.displayText("Lo scrigno è chiuso! Devi prima aprirlo con una chiave.");
-                return false;
-            }
-        }
-        return true;
-    }
 
-    /**
-     * Metodo per eseguire gli effetti post-raccolta di un oggetto.
-     * @param i
-     * @param parentContainer
-     */
-    public void postPickUpFromContainer(Item i, ItemContainer parentContainer) {
-        if (i.hasName("Amuleto") && parentContainer.hasName("Scrigno")) {
-            game.unlockCorridor("Stanza2", "Stanza3");
-        }
-    }
-    
     /**
      * Metodo per eseguire gli effetti post-raccolta di un oggetto.
      * @param i
      */
     public void postPickUp(Item i) {
+        // Sblocca la porta tra Stanza3 e Stanza4 se si raccoglie il diario nella Stanza3
         if (i.hasName("Diario") && game.getCurrentRoom().getName().equals("Stanza3")) {
             game.unlockCorridor("Stanza3", "Stanza4");
+        }
+
+        // Sblocca la porta tra Stanza2 e Stanza3 se si raccoglie l'amuleto nella Stanza2
+        if (i.hasName("Amuleto") && game.getCurrentRoom().getName().equals("Stanza2")) {
+            game.unlockCorridor("Stanza2", "Stanza3");
         }
     }
     
