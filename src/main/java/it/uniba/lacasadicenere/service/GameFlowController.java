@@ -4,12 +4,32 @@
  */
 package it.uniba.lacasadicenere.service;
 
+import it.uniba.lacasadicenere.view.GamePanel;
+import it.uniba.lacasadicenere.view.MapDialog;
+
 /**
  * Gestisce l'input dell'utente.
  */
 public class GameFlowController {
 
+    private static GamePanel gamePanel;
+
     private static String userInput = "";
+
+    public static void setGamePanel(GamePanel panel) {
+        gamePanel = panel;
+    }
+    
+    /**
+     * Aggiorna la mappa nella finestra separata
+     */
+    public static void updateMap() {
+        MapDialog mapDialog = MapDialog.getInstance();
+        if (mapDialog.isVisible()) {
+            mapDialog.updateMap();
+        }
+    }
+
 
     /**
      * Restituisce l'input corrente e svuota il buffer

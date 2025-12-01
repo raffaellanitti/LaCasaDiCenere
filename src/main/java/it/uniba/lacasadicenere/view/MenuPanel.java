@@ -8,6 +8,7 @@ import it.uniba.lacasadicenere.model.Game;
 import it.uniba.lacasadicenere.model.Item;
 import it.uniba.lacasadicenere.controller.GameController;
 import it.uniba.lacasadicenere.service.InputService;
+import it.uniba.lacasadicenere.util.Music;
 
 import javax.swing.*;
 import javax.swing.GroupLayout.Alignment;
@@ -44,6 +45,8 @@ public class MenuPanel extends JPanel {
      */
     public MenuPanel() {
         initComponents();
+
+        Music.getInstance().startMusic();
     }
     
     /**

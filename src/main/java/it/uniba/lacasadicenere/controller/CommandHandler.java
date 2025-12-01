@@ -17,9 +17,9 @@ import it.uniba.lacasadicenere.type.CommandType;
 import it.uniba.lacasadicenere.type.CommandKey; 
 import it.uniba.lacasadicenere.type.ParserOutput;
 import it.uniba.lacasadicenere.service.OutputService;
+import it.uniba.lacasadicenere.type.CommandAction;
 
 import java.util.HashMap;
-import it.uniba.lacasadicenere.type.CommandAction;
 
 /**
  * Esegue i comandi del gioco in base all'input parsato dall'utente.
@@ -31,6 +31,16 @@ public class CommandHandler {
     private final HashMap<CommandKey, CommandAction> commandMap;
     
     private Engine gameLogic;
+
+    private Runnable onRoomChange;
+
+    /**
+     * Imposta il callback da chiamare quando la stanza cambia.
+     * @param onRoomChange callback
+     */
+    public void setOnRoomChangeListener(Runnable onRoomChange) {
+        this.onRoomChange = onRoomChange;
+    }
 
     /**
      * Crea un comportamento per i comandi di movimento direzionale.
@@ -46,6 +56,11 @@ public class CommandHandler {
                 if(corridor != null && !corridor.isLocked()) {
                 game.setCurrentRoom(corridor.getArrivingRoom());
                 DatabaseH2.printFromDB("Osserva", game.getCurrentRoom().getName(), "true", "0", "0");
+
+                if (onRoomChange != null) {
+                    onRoomChange.run();
+                }
+                
             } else if (corridor != null && corridor.isLocked()) {
                 OutputService.displayText("Il corridoio verso " + direction + " è bloccato!");
             } else {

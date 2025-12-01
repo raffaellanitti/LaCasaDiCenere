@@ -1,3 +1,4 @@
+/Users/raffaellanitti/LaCasaDiCenere/src/main/java/it/uniba/lacasadicenere/util/Music.java
 /Users/raffaellanitti/LaCasaDiCenere/src/main/java/it/uniba/lacasadicenere/server/RestServer.java
 /Users/raffaellanitti/LaCasaDiCenere/src/main/java/it/uniba/lacasadicenere/util/GameSerializer.java
 /Users/raffaellanitti/LaCasaDiCenere/src/main/java/it/uniba/lacasadicenere/controller/Engine.java
@@ -16,6 +17,7 @@
 /Users/raffaellanitti/LaCasaDiCenere/src/main/java/it/uniba/lacasadicenere/model/RoomConnection.java
 /Users/raffaellanitti/LaCasaDiCenere/src/main/java/it/uniba/lacasadicenere/model/Game.java
 /Users/raffaellanitti/LaCasaDiCenere/src/main/java/it/uniba/lacasadicenere/model/Item.java
+/Users/raffaellanitti/LaCasaDiCenere/src/main/java/it/uniba/lacasadicenere/view/MapDialog.java
 /Users/raffaellanitti/LaCasaDiCenere/src/main/java/it/uniba/lacasadicenere/type/CommandType.java
 /Users/raffaellanitti/LaCasaDiCenere/src/main/java/it/uniba/lacasadicenere/view/GamePanel.java
 /Users/raffaellanitti/LaCasaDiCenere/src/main/java/it/uniba/lacasadicenere/view/MenuPanel.java

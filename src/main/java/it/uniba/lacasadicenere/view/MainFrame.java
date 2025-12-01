@@ -14,6 +14,8 @@ import java.awt.Image;
 import javax.swing.JPanel;
 import javax.swing.WindowConstants;
 
+import it.uniba.lacasadicenere.service.GameFlowController;
+
 /**
  * Gestore principale della GUI con correzioni per il caricamento delle risorse
  */
@@ -39,6 +41,8 @@ public class MainFrame extends JFrame {
         JPanel cards = new JPanel(new CardLayout());
         MenuPanel menu = new MenuPanel();
         game = new GamePanel();
+
+        GameFlowController.setGamePanel(game);
 
         cards.add(menu, "MenuPanel");
         cards.add(game, "GamePanel");

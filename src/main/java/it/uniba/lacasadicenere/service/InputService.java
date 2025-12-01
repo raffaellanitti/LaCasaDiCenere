@@ -155,6 +155,10 @@ public class InputService {
         mirrorGame = MirrorGame.getInstance();
         parser = new Parser();
         commandExecutor = new CommandHandler(game);
+
+        commandExecutor.setOnRoomChangeListener(() -> {
+            GameFlowController.updateMap();
+        });
     }
         
     /**
@@ -166,6 +170,11 @@ public class InputService {
         mirrorGame = MirrorGame.getInstance();
         parser = new Parser();
         commandExecutor = new CommandHandler(game);
+
+        commandExecutor.setOnRoomChangeListener(() -> {
+            GameFlowController.updateMap();
+        });
+        
         List<String> itemsNames = game.getInventory().stream().map(Item::getName).toList();
         String[] itemsNamesArray = itemsNames.toArray(new String[0]);
         GamePanel.updateInventoryTextArea(itemsNamesArray);

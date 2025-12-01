@@ -2,6 +2,7 @@ package it.uniba.lacasadicenere.view;
 
 import it.uniba.lacasadicenere.service.GameFlowController;
 import it.uniba.lacasadicenere.controller.GameController;
+import it.uniba.lacasadicenere.util.Music;
 
 import javax.swing.*;
 import javax.swing.plaf.metal.MetalButtonUI;
@@ -27,6 +28,7 @@ public class GamePanel extends JPanel {
     private JButton goBackButton;
     private JButton saveGameButton;
     private JButton helpButton;
+    private JButton toggleMapButton;
 
     // Componenti di Visualizzazione
     private static JPanel imagePanel;
@@ -113,6 +115,7 @@ public class GamePanel extends JPanel {
         goBackButton = new JButton();
         saveGameButton = new JButton();
         helpButton = new JButton();
+        toggleMapButton = new JButton();
         displayTextPane = new JTextPane();
         scrollPaneDisplayText = new JScrollPane();
         inventoryTextArea = new JTextArea();
@@ -126,6 +129,11 @@ public class GamePanel extends JPanel {
         toolBar.add(Box.createHorizontalStrut(5));
 
         // --- BUTTONS ---
+        setupButton(toggleMapButton, "⨅", COLD_LIGHT, COLD_SELECT_COLOR, DARK_FOG_CONTENT, 16);
+        toggleMapButton.addActionListener(this::toggleMapButtonActionPerformed);
+        toolBar.add(toggleMapButton);
+        toolBar.add(Box.createHorizontalStrut(10));
+
         setupButton(goBackButton, "<", COLD_LIGHT, COLD_SELECT_COLOR, DARK_FOG_CONTENT, 14);
         goBackButton.addActionListener(this::goBackButtonActionPerformed);
         toolBar.add(goBackButton);
@@ -228,6 +236,19 @@ public class GamePanel extends JPanel {
         );
     }
 
+    private void toggleMapButtonActionPerformed(ActionEvent evt) {
+        MapDialog mapDialog = MapDialog.getInstance();
+    
+        if (mapDialog.isVisible()) {
+            mapDialog.setVisible(false);
+        } else {
+            mapDialog.setLocationRelativeTo(this);
+            mapDialog.setVisible(true);
+            mapDialog.updateMap();
+        }
+    }
+
+
     /**
      * Configura un JButton con le proprietà specificate.
      * @param button
@@ -311,11 +332,14 @@ public class GamePanel extends JPanel {
      * Torna al Menu principale del gioco.  
      */
     public void goBack() {
+        
         CardLayout cl = (CardLayout) getParent().getLayout();
         cl.show(getParent(), "MenuPanel");
         displayTextPane.setText("");
         inventoryTextArea.setText(" Inventario:\n");
         userInputField.setText("");
+
+        Music.getInstance().stopMusic();
     }
 
     /**
