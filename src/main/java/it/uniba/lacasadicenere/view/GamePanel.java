@@ -134,7 +134,7 @@ public class GamePanel extends JPanel {
         toolBar.add(goBackButton);
         toolBar.add(Box.createHorizontalStrut(10));
 
-        setupButton(toggleMapButton, "⨅", COLD_LIGHT, COLD_SELECT_COLOR, DARK_FOG_CONTENT, 16);
+        setupButton(toggleMapButton, "𖠿", COLD_LIGHT, COLD_SELECT_COLOR, DARK_FOG_CONTENT, 16);
         toggleMapButton.addActionListener(this::toggleMapButtonActionPerformed);
         toolBar.add(toggleMapButton);
         toolBar.add(Box.createHorizontalStrut(10));

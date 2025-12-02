@@ -1,5 +1,5 @@
 /*
- * MapDialog.java - Finestra della mappa interattiva (versione semplificata)
+ * MapDialog.java - Finestra della mappa interattiva (versione ultra-semplificata)
  */
 package it.uniba.lacasadicenere.view;
 
@@ -11,9 +11,6 @@ import it.uniba.lacasadicenere.type.CommandType;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.awt.geom.Line2D;
-import java.awt.geom.Path2D;
-import java.awt.geom.RoundRectangle2D;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -28,8 +25,16 @@ public class MapDialog extends JFrame {
     private MapPanel mapPanel;
 
     private MapDialog() {
-        initComponents();
+        setTitle("Mappa - La Casa di Cenere");
+        setPreferredSize(new Dimension(700, 650));
+        setMinimumSize(new Dimension(700, 650));
+        setResizable(false);
         setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+        getContentPane().setBackground(new Color(30, 30, 35));
+
+        mapPanel = new MapPanel(Game.getInstance());
+        add(mapPanel);
+        pack();
     }
 
     public static MapDialog getInstance() {
@@ -45,97 +50,67 @@ public class MapDialog extends JFrame {
         }
     }
 
-    private void initComponents() {
-        final Color FOG_BACKGROUND = new Color(30, 30, 35);
-
-        setTitle("Mappa - La Casa di Cenere");
-        setPreferredSize(new Dimension(700, 650));
-        setMinimumSize(new Dimension(700, 650));
-        setResizable(false);
-        getContentPane().setBackground(FOG_BACKGROUND);
-
-        mapPanel = new MapPanel(Game.getInstance());
-
-        GroupLayout layout = new GroupLayout(getContentPane());
-        getContentPane().setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-                .addComponent(mapPanel, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-                .addComponent(mapPanel, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-        );
-
-        pack();
-    }
-
     /**
-     * Pannello interno che disegna la mappa (versione semplificata).
+     * Pannello interno che disegna la mappa.
      */
     private class MapPanel extends JPanel {
 
         private Game game;
         private Map<String, Point> roomPositions;
-        private Map<String, Rectangle> roomBounds;
-        private String hoveredRoom = null;
-        private Set<String> visitedRooms = new HashSet<>();
+        private Set<String> visitedRooms;
+        private String hoveredRoom;
 
         // Colori
-        private static final Color BG_COLOR = new Color(30, 30, 35);
-        private static final Color COLD_LIGHT = new Color(200, 220, 255);
-        private static final Color ROOM_COLOR = new Color(60, 70, 80);
-        private static final Color CURRENT_ROOM_COLOR = new Color(100, 150, 200);
-        private static final Color LOCKED_COLOR = new Color(150, 50, 50);
-        private static final Color UNLOCKED_COLOR = new Color(80, 120, 80);
-        private static final Color VISITED_ROOM_COLOR = new Color(80, 90, 100);
-        private static final Color HOVER_COLOR = new Color(120, 170, 220);
+        private static final Color BG = new Color(30, 30, 35);
+        private static final Color LIGHT = new Color(200, 220, 255);
+        private static final Color ROOM_NORMAL = new Color(60, 70, 80);
+        private static final Color ROOM_CURRENT = new Color(100, 150, 200);
+        private static final Color ROOM_VISITED = new Color(80, 90, 100);
+        private static final Color ROOM_HOVER = new Color(120, 170, 220);
+        private static final Color CORRIDOR_LOCKED = new Color(150, 50, 50);
+        private static final Color CORRIDOR_OPEN = new Color(80, 120, 80);
 
-        // Dimensioni stanze
-        private static final int ROOM_WIDTH = 110;
-        private static final int ROOM_HEIGHT = 75;
+        // Dimensioni
+        private static final int ROOM_W = 110;
+        private static final int ROOM_H = 75;
 
         public MapPanel(Game game) {
             this.game = game;
             this.roomPositions = new HashMap<>();
-            this.roomBounds = new HashMap<>();
+            this.visitedRooms = new HashSet<>();
+            this.hoveredRoom = null;
 
             setPreferredSize(new Dimension(700, 650));
-            setBackground(BG_COLOR);
+            setBackground(BG);
+            setToolTipText("");
 
-            initializeRoomPositions();
-            setupMouseListeners();
+            initRoomPositions();
+            setupMouseListener();
 
             if (game.getCurrentRoom() != null) {
                 visitedRooms.add(game.getCurrentRoom().getName());
             }
         }
 
-        private void initializeRoomPositions() {
-
-            roomPositions.put("Stanza1", new Point(120, 120));
-            roomPositions.put("Stanza2", new Point(120, 260));
-            roomPositions.put("Stanza3", new Point(300, 260));
-            roomPositions.put("Stanza4", new Point(480, 260));
-            roomPositions.put("Stanza5", new Point(480, 120));
-
-            for (String roomName : roomPositions.keySet()) {
-                Point pos = roomPositions.get(roomName);
-                roomBounds.put(roomName, new Rectangle(pos.x, pos.y, ROOM_WIDTH, ROOM_HEIGHT));
-            }
+        private void initRoomPositions() {
+            roomPositions.put("Stanza1", new Point(120, 200));
+            roomPositions.put("Stanza2", new Point(120, 340));
+            roomPositions.put("Stanza3", new Point(300, 340));
+            roomPositions.put("Stanza4", new Point(480, 340));
+            roomPositions.put("Stanza5", new Point(480, 200));
         }
 
-        private void setupMouseListeners() {
-            setToolTipText("");
-
+        private void setupMouseListener() {
             addMouseMotionListener(new MouseMotionAdapter() {
                 @Override
                 public void mouseMoved(MouseEvent e) {
-                    String previousHovered = hoveredRoom;
+                    String prev = hoveredRoom;
                     hoveredRoom = null;
 
-                    for (Map.Entry<String, Rectangle> entry : roomBounds.entrySet()) {
-                        if (entry.getValue().contains(e.getPoint())) {
+                    for (Map.Entry<String, Point> entry : roomPositions.entrySet()) {
+                        Point p = entry.getValue();
+                        if (e.getX() >= p.x && e.getX() <= p.x + ROOM_W &&
+                            e.getY() >= p.y && e.getY() <= p.y + ROOM_H) {
                             hoveredRoom = entry.getKey();
                             setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
                             break;
@@ -146,8 +121,8 @@ public class MapDialog extends JFrame {
                         setCursor(Cursor.getDefaultCursor());
                     }
 
-                    if ((previousHovered == null && hoveredRoom != null) ||
-                        (previousHovered != null && !previousHovered.equals(hoveredRoom))) {
+                    if ((prev == null && hoveredRoom != null) || 
+                        (prev != null && !prev.equals(hoveredRoom))) {
                         repaint();
                     }
                 }
@@ -156,67 +131,29 @@ public class MapDialog extends JFrame {
             addMouseListener(new MouseAdapter() {
                 @Override
                 public void mouseClicked(MouseEvent e) {
-                    handleRoomClick(e.getPoint());
-                }
-
-                @Override
-                public void mouseExited(MouseEvent e) {
                     if (hoveredRoom != null) {
-                        hoveredRoom = null;
-                        setCursor(Cursor.getDefaultCursor());
-                        repaint();
+                        showRoomInfo(hoveredRoom);
                     }
                 }
             });
         }
 
-        private void handleRoomClick(Point clickPoint) {
-            for (Map.Entry<String, Rectangle> entry : roomBounds.entrySet()) {
-                if (entry.getValue().contains(clickPoint)) {
-                    String roomName = entry.getKey();
-                    Room clickedRoom = findRoomByName(roomName);
-                    if (clickedRoom != null) {
-                        showRoomInfo(clickedRoom);
-                    }
-                    break;
-                }
-            }
-        }
+        private void showRoomInfo(String roomName) {
+            Room room = findRoom(roomName);
+            if (room == null) return;
 
-        private Room findRoomByName(String roomName) {
-            if (game.getCorridorMap() == null) return null;
-
-            for (RoomConnection c : game.getCorridorMap()) {
-                if (c.getStartingRoom().getName().equals(roomName)) {
-                    return c.getStartingRoom();
-                }
-                if (c.getArrivingRoom().getName().equals(roomName)) {
-                    return c.getArrivingRoom();
-                }
-            }
-            return null;
-        }
-
-        private void showRoomInfo(Room room) {
-            if(!visitedRooms.contains(room.getName())) {
-                JTextArea textArea = new JTextArea(" Stanza non ancora esplorata.");
-                textArea.setEditable(false);
-                textArea.setFont(new Font("Monospaced", Font.PLAIN, 13));
-                textArea.setBackground(new Color(45, 50, 55));
-                textArea.setForeground(COLD_LIGHT);
-                textArea.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
-
-                JOptionPane.showMessageDialog(
-                    this,
-                    textArea,
-                    "Stanza Inesplorata",
-                    JOptionPane.INFORMATION_MESSAGE
-                );
+            // Stanza non visitata
+            if (!visitedRooms.contains(roomName)) {
+                JOptionPane.showMessageDialog(this, 
+                    "Stanza non ancora esplorata.", 
+                    "Stanza Inesplorata", 
+                    JOptionPane.INFORMATION_MESSAGE);
                 return;
             }
 
+            // Stanza visitata
             StringBuilder info = new StringBuilder();
-            info.append(room.getName()).append("\n\n");
+            info.append(roomName).append("\n\n");
 
             if (room.equals(game.getCurrentRoom())) {
                 info.append("⨀ Sei qui!\n\n");
@@ -225,7 +162,7 @@ public class MapDialog extends JFrame {
             }
 
             if (room.getItems() != null && !room.getItems().isEmpty()) {
-                info.append("Oggetti presenti: ").append(room.getItems().size()).append("\n");
+                info.append("Oggetti: ").append(room.getItems().size()).append("\n");
                 for (var item : room.getItems()) {
                     info.append("  • ").append(item.getName()).append("\n");
                 }
@@ -237,31 +174,20 @@ public class MapDialog extends JFrame {
             textArea.setEditable(false);
             textArea.setFont(new Font("Monospaced", Font.PLAIN, 13));
             textArea.setBackground(new Color(45, 50, 55));
-            textArea.setForeground(COLD_LIGHT);
+            textArea.setForeground(LIGHT);
             textArea.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
 
-            JOptionPane.showMessageDialog(
-                this,
-                textArea,
-                "Informazioni Stanza",
-                JOptionPane.INFORMATION_MESSAGE
-            );
+            JOptionPane.showMessageDialog(this, textArea, "Info Stanza", JOptionPane.INFORMATION_MESSAGE);
         }
 
-        @Override
-        public String getToolTipText(MouseEvent e) {
-            for (Map.Entry<String, Rectangle> entry : roomBounds.entrySet()) {
-                if (entry.getValue().contains(e.getPoint())) {
-                    Room room = findRoomByName(entry.getKey());
-                    if (room != null) {
-                        if (room.equals(game.getCurrentRoom())) {
-                            return "⨀ Posizione attuale - Click per dettagli";
-                        } else if (visitedRooms.contains(room.getName())) {
-                            return "Stanza visitata - Click per dettagli";
-                        } else {
-                            return "Stanza non esplorata - Click per dettagli";
-                        }
-                    }
+        private Room findRoom(String name) {
+            if (game.getCorridorMap() == null) return null;
+            for (RoomConnection c : game.getCorridorMap()) {
+                if (c.getStartingRoom().getName().equals(name)) {
+                    return c.getStartingRoom();
+                }
+                if (c.getArrivingRoom().getName().equals(name)) {
+                    return c.getArrivingRoom();
                 }
             }
             return null;
@@ -278,164 +204,113 @@ public class MapDialog extends JFrame {
         protected void paintComponent(Graphics g) {
             super.paintComponent(g);
             Graphics2D g2 = (Graphics2D) g;
-
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 
+            drawTitle(g2);
             drawCorridors(g2);
             drawRooms(g2);
-            drawTitle(g2);
         }
 
-        /**
-         * Disegna i corridoi con frecce bidirezionali.
-         * Mostra solo un corridoio per coppia di stanze con entrambe le direzioni.
-         */
+        private void drawTitle(Graphics2D g2) {
+            g2.setFont(new Font("Monospaced", Font.BOLD, 32));
+            g2.setColor(LIGHT);
+            String title = "MAPPA - La Casa di Cenere";
+            int x = g2.getFontMetrics().stringWidth(title);
+            g2.drawString(title, (getWidth() - x)/2, 60);
+
+            g2.setFont(new Font("Monospaced", Font.ITALIC, 16));
+            g2.setColor(new Color(150, 150, 160));
+            String sub = "(Click sulle stanze per avere suggerimenti)";
+            int y = g2.getFontMetrics().stringWidth(sub);
+            g2.drawString(sub, (getWidth() - y) / 2, 95);
+        }
+
         private void drawCorridors(Graphics2D g2) {
             if (game.getCorridorMap() == null) return;
 
-            // Set per tracciare le coppie già disegnate
-            Set<String> drawnPairs = new HashSet<>();
+            Set<String> drawn = new HashSet<>();
 
-            for (RoomConnection corridor : game.getCorridorMap()) {
-                String startName = corridor.getStartingRoom().getName();
-                String endName = corridor.getArrivingRoom().getName();
+            for (RoomConnection c : game.getCorridorMap()) {
+                String s1 = c.getStartingRoom().getName();
+                String s2 = c.getArrivingRoom().getName();
+                String key = s1.compareTo(s2) < 0 ? s1 + "-" + s2 : s2 + "-" + s1;
 
-                // Crea una chiave unica per la coppia (indipendente dall'ordine)
-                String pairKey = startName.compareTo(endName) < 0 
-                    ? startName + "-" + endName 
-                    : endName + "-" + startName;
+                if (drawn.contains(key)) continue;
+                drawn.add(key);
 
-                // Salta se questa coppia è già stata disegnata
-                if (drawnPairs.contains(pairKey)) {
-                    continue;
-                }
-                drawnPairs.add(pairKey);
-
-                Point p1 = roomPositions.get(startName);
-                Point p2 = roomPositions.get(endName);
-
+                Point p1 = roomPositions.get(s1);
+                Point p2 = roomPositions.get(s2);
                 if (p1 == null || p2 == null) continue;
 
-                int x1 = p1.x + ROOM_WIDTH / 2;
-                int y1 = p1.y + ROOM_HEIGHT / 2;
-                int x2 = p2.x + ROOM_WIDTH / 2;
-                int y2 = p2.y + ROOM_HEIGHT / 2;
+                int x1 = p1.x + ROOM_W / 2;
+                int y1 = p1.y + ROOM_H / 2;
+                int x2 = p2.x + ROOM_W / 2;
+                int y2 = p2.y + ROOM_H / 2;
 
-                // Trova il corridoio di ritorno per verificare lo stato
-                RoomConnection returnCorridor = findReturnCorridor(corridor);
-                
-                // Il corridoio è aperto se ENTRAMBE le direzioni sono sbloccate
-                boolean isOpen = !corridor.isLocked() && 
-                                (returnCorridor == null || !returnCorridor.isLocked());
+                // Verifica se entrambe le direzioni sono aperte
+                RoomConnection reverse = findReverse(c);
+                boolean open = !c.isLocked() && (reverse == null || !reverse.isLocked());
 
-                if (isOpen) {
-                    g2.setColor(UNLOCKED_COLOR);
-                    g2.setStroke(new BasicStroke(4, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
-                } else {
-                    g2.setColor(LOCKED_COLOR);
-                    g2.setStroke(new BasicStroke(3, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND,
-                        0, new float[]{8, 8}, 0));
-                }
+                g2.setColor(open ? CORRIDOR_OPEN : CORRIDOR_LOCKED);
+                g2.setStroke(new BasicStroke(open ? 4 : 3));
+                g2.drawLine(x1, y1, x2, y2);
 
-                // Disegna la linea
-                g2.draw(new Line2D.Double(x1, y1, x2, y2));
-
-                // Disegna frecce bidirezionali
-                drawBidirectionalArrows(g2, x1, y1, x2, y2, corridor, returnCorridor);
+                // Etichetta direzioni
+                drawDirectionLabel(g2, x1, y1, x2, y2, c.getDirection(), 
+                    reverse != null ? reverse.getDirection() : null);
             }
         }
 
-        /**
-         * Trova il corridoio di ritorno per una data connessione.
-         */
-        private RoomConnection findReturnCorridor(RoomConnection corridor) {
+        private RoomConnection findReverse(RoomConnection c) {
             if (game.getCorridorMap() == null) return null;
-
-            for (RoomConnection c : game.getCorridorMap()) {
-                if (c.getStartingRoom().getName().equals(corridor.getArrivingRoom().getName()) &&
-                    c.getArrivingRoom().getName().equals(corridor.getStartingRoom().getName())) {
-                    return c;
+            for (RoomConnection rc : game.getCorridorMap()) {
+                if (rc.getStartingRoom().getName().equals(c.getArrivingRoom().getName()) &&
+                    rc.getArrivingRoom().getName().equals(c.getStartingRoom().getName())) {
+                    return rc;
                 }
             }
             return null;
         }
 
-        /**
-         * Disegna le frecce bidirezionali con le direzioni corrette.
-         */
-        private void drawBidirectionalArrows(Graphics2D g2, int x1, int y1, int x2, int y2, 
-                                            RoomConnection forward, RoomConnection backward) {
-            // Calcola il punto medio
+        private void drawDirectionLabel(Graphics2D g2, int x1, int y1, int x2, int y2, 
+                                        CommandType dir1, CommandType dir2) {
             int midX = (x1 + x2) / 2;
             int midY = (y1 + y2) / 2;
 
-            // Calcola l'angolo della linea
-            double angle = Math.atan2(y2 - y1, x2 - x1);
+            String text1 = getDirText(dir1);
+            String text2 = dir2 != null ? getDirText(dir2) : null;
 
-            // Determina le direzioni
-            String forwardDir = getDirectionSymbol(forward.getDirection());
-            String backwardDir = backward != null ? getDirectionSymbol(backward.getDirection()) : "";
-
-            // Disegna background per le frecce
-            g2.setFont(new Font("Monospaced", Font.BOLD, 11));
+            g2.setFont(new Font("Monospaced", Font.BOLD, 12));
             FontMetrics fm = g2.getFontMetrics();
 
-            String arrowText = forwardDir;
-            if (!backwardDir.isEmpty()) {
-                arrowText = forwardDir + " " + backwardDir;
-            }
+            int w = Math.max(fm.stringWidth(text1), text2 != null ? fm.stringWidth(text2) : 0);
+            int h = text2 != null ? fm.getHeight() * 2 : fm.getHeight();
 
-            int textWidth = fm.stringWidth(arrowText);
-            int textHeight = fm.getHeight();
+            // Background
+            g2.setColor(new Color(30, 30, 35, 240));
+            g2.fillRoundRect(midX - w/2 - 6, midY - h/2 - 2, w + 12, h + 4, 8, 8);
 
-            // Background ovale
-            g2.setColor(BG_COLOR);
-            g2.fillOval(midX - textWidth/2 - 8, midY - textHeight/2, textWidth + 16, textHeight);
+            g2.setColor(LIGHT);
+            g2.setStroke(new BasicStroke(1.5f));
+            g2.drawRoundRect(midX - w/2 - 6, midY - h/2 - 2, w + 12, h + 4, 8, 8);
 
-            // Testo delle frecce
-            g2.setColor(COLD_LIGHT);
-            g2.drawString(arrowText, midX - textWidth/2, midY + 4);
-
-            // Disegna punte delle frecce ai lati
-            drawArrowHead(g2, x1, y1, x2, y2, 0.3); // Freccia verso arrivo
-            if (backward != null) {
-                drawArrowHead(g2, x2, y2, x1, y1, 0.3); // Freccia verso partenza
+            // Testo
+            g2.setColor(Color.WHITE);
+            if (text2 == null) {
+                g2.drawString(text1, midX - fm.stringWidth(text1)/2, midY + fm.getAscent()/2);
+            } else {
+                g2.drawString(text1, midX - fm.stringWidth(text1)/2, midY - fm.getHeight()/4);
+                g2.drawString(text2, midX - fm.stringWidth(text2)/2, midY + fm.getHeight() - fm.getHeight()/4);
             }
         }
 
-        /**
-         * Disegna la punta di una freccia.
-         */
-        private void drawArrowHead(Graphics2D g2, int x1, int y1, int x2, int y2, double position) {
-            // Calcola il punto sulla linea dove disegnare la freccia
-            int arrowX = (int)(x1 + (x2 - x1) * position);
-            int arrowY = (int)(y1 + (y2 - y1) * position);
-
-            double angle = Math.atan2(y2 - y1, x2 - x1);
-            int arrowSize = 10;
-
-            Path2D.Double arrowHead = new Path2D.Double();
-            arrowHead.moveTo(arrowX, arrowY);
-            arrowHead.lineTo(
-                arrowX - arrowSize * Math.cos(angle - Math.PI / 6),
-                arrowY - arrowSize * Math.sin(angle - Math.PI / 6)
-            );
-            arrowHead.lineTo(
-                arrowX - arrowSize * Math.cos(angle + Math.PI / 6),
-                arrowY - arrowSize * Math.sin(angle + Math.PI / 6)
-            );
-            arrowHead.closePath();
-
-            g2.fill(arrowHead);
-        }
-
-        private String getDirectionSymbol(CommandType direction) {
-            return switch (direction) {
-                case NORD -> "↑";
-                case SUD -> "↓";
-                case EST -> "→";
-                case OVEST -> "←";
+        private String getDirText(CommandType dir) {
+            return switch (dir) {
+                case NORD -> "↑ N";
+                case SUD -> "↓ S";
+                case EST -> "→ E";
+                case OVEST -> "← O";
                 default -> "?";
             };
         }
@@ -450,93 +325,45 @@ public class MapDialog extends JFrame {
             }
 
             for (Room room : allRooms) {
-                String roomName = room.getName();
-                Point pos = roomPositions.get(roomName);
-
+                String name = room.getName();
+                Point pos = roomPositions.get(name);
                 if (pos == null) continue;
 
                 boolean isCurrent = room.equals(game.getCurrentRoom());
-                boolean isVisited = visitedRooms.contains(roomName);
-                boolean isHovered = roomName.equals(hoveredRoom);
+                boolean isVisited = visitedRooms.contains(name);
+                boolean isHover = name.equals(hoveredRoom);
 
-                Color roomColor;
-                if (isCurrent) {
-                    roomColor = CURRENT_ROOM_COLOR;
-                } else if (isHovered) {
-                    roomColor = HOVER_COLOR;
-                } else if (isVisited) {
-                    roomColor = VISITED_ROOM_COLOR;
-                } else {
-                    roomColor = ROOM_COLOR;
-                }
+                // Colore stanza
+                Color color;
+                if (isCurrent) color = ROOM_CURRENT;
+                else if (isHover) color = ROOM_HOVER;
+                else if (isVisited) color = ROOM_VISITED;
+                else color = ROOM_NORMAL;
 
-                // Effetto glow per hover
-                if (isHovered && !isCurrent) {
-                    g2.setColor(new Color(120, 170, 220, 50));
-                    RoundRectangle2D glowRect = new RoundRectangle2D.Double(
-                        pos.x - 4, pos.y - 4, ROOM_WIDTH + 8, ROOM_HEIGHT + 8, 22, 22
-                    );
-                    g2.fill(glowRect);
-                }
+                // Disegna stanza
+                g2.setColor(color);
+                g2.fillRoundRect(pos.x, pos.y, ROOM_W, ROOM_H, 15, 15);
 
-                // Stanza
-                RoundRectangle2D rect = new RoundRectangle2D.Double(
-                    pos.x, pos.y, ROOM_WIDTH, ROOM_HEIGHT, 18, 18
-                );
-
-                g2.setColor(roomColor);
-                g2.fill(rect);
-
-                g2.setColor(COLD_LIGHT);
-                g2.setStroke(new BasicStroke(isCurrent ? 3 : (isHovered ? 2.5f : 2)));
-                g2.draw(rect);
-
-                // Nome stanza
-                g2.setFont(new Font("Monospaced", Font.BOLD, 14));
-                FontMetrics fm = g2.getFontMetrics();
-                String displayName = roomName.replace("Stanza", "S");
-                int textWidth = fm.stringWidth(displayName);
-                int textHeight = fm.getHeight();
-
-                g2.setColor(COLD_LIGHT);
-                g2.drawString(displayName,
-                    pos.x + (ROOM_WIDTH - textWidth) / 2,
-                    pos.y + (ROOM_HEIGHT + textHeight) / 2 - 4);
+                g2.setColor(LIGHT);
+                g2.setStroke(new BasicStroke(isCurrent ? 3 : 2));
+                g2.drawRoundRect(pos.x, pos.y, ROOM_W, ROOM_H, 15, 15);
 
                 // Marker "TU SEI QUI"
                 if (isCurrent) {
                     g2.setFont(new Font("Monospaced", Font.BOLD, 10));
-                    String marker = "● TU SEI QUI";
-                    int markerWidth = g2.getFontMetrics().stringWidth(marker);
+                    String marker = "● SEI QUI";
+                    int mw = g2.getFontMetrics().stringWidth(marker);
                     g2.setColor(new Color(255, 200, 100));
-                    g2.drawString(marker,
-                        pos.x + (ROOM_WIDTH - markerWidth) / 2,
-                        pos.y + ROOM_HEIGHT + 18);
+                    g2.drawString(marker, pos.x + (ROOM_W - mw) / 2, pos.y + ROOM_H / 2 - 8);
                 }
 
-                // Numero oggetti
-                if (room.getItems() != null && !room.getItems().isEmpty()) {
-                    int itemCount = room.getItems().size();
-                    g2.setFont(new Font("Monospaced", Font.BOLD, 11));
-                    g2.setColor(new Color(180, 180, 180));
-                    g2.drawString(" " + itemCount, pos.x + 5, pos.y + ROOM_HEIGHT - 5);
-                }
+                // Nome stanza
+                g2.setFont(new Font("Monospaced", Font.BOLD, 14));
+                g2.setColor(LIGHT);
+                String display = name.replace("Stanza", "S");
+                int tw = g2.getFontMetrics().stringWidth(display);
+                g2.drawString(display, pos.x + (ROOM_W - tw) / 2, pos.y + ROOM_H / 2 + 10);
             }
-        }
-
-        private void drawTitle(Graphics2D g2) {
-            g2.setFont(new Font("Monospaced", Font.BOLD, 22));
-            g2.setColor(COLD_LIGHT);
-            String title = "MAPPA INTERATTIVA";
-            FontMetrics fm = g2.getFontMetrics();
-            int x = (getWidth() - fm.stringWidth(title)) / 2;
-            g2.drawString(title, x, 40);
-
-            g2.setFont(new Font("Monospaced", Font.ITALIC, 14));
-            g2.setColor(new Color(150, 170, 200));
-            String subtitle = "(Click sulle stanze per i dettagli)";
-            int subX = (getWidth() - g2.getFontMetrics().stringWidth(subtitle)) / 2;
-            g2.drawString(subtitle, subX, 60);
         }
     }
 }
