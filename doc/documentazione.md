@@ -637,11 +637,357 @@ public class MainFrame extends JFrame {
 
 Questo layout agisce come una pila di schede, permettendo di mostrare solo un pannello alla volta.
 
-#### 2. MenuPanel - Menu principale
+
+### 2. MenuPanel - Menu principale
 
 La classe **MenuPanel**, che estende `JPanel`, presenta il menu iniziale con sfondo personalizzato e pulsanti stilizzati.
-
 ```java
 backgroundPanel = new JPanel() {
     @Override
-    protecte
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        if (backgroundImage != null) {
+            g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
+        }
+    }
+};
+```
+
+L'interattività è gestita attraverso gli **ActionListener** assegnati ai `JButton`. I pulsanti utilizzano `MetalButtonUI` personalizzata per ottenere l'effetto visivo desiderato.
+```java
+newGameButton.addActionListener(evt -> {
+    gameManager.createGame();
+    Game game = Game.getInstance();
+    new Thread(() -> InputService.setUpGameFlow(game)).start();
+});
+```
+
+### 3. GamePanel - Pannello di gioco principale
+
+La classe **GamePanel**, che estende `JPanel`, rappresenta il cuore dell'interfaccia di gioco e comprende:
+
+- **Toolbar** con i seguenti pulsanti: indietro, mappa, salva, aiuto
+- **Pannello immagini con CardLayout**: visualizza le immagini delle 5 stanze
+- **JTextPane con auto-scroll**: per visualizzare la narrazione e l'output dei comandi
+- **JTextArea per l'inventario**: mostra gli oggetti posseduti dal giocatore in tempo reale
+- **JTextField per l'input utente**: permette di inserire i comandi
+```java
+inputField.addActionListener(e -> {
+    String input = inputField.getText().trim();
+    if (!input.isEmpty()) {
+        GameFlowController.setUserInput(input);
+        inputField.setText("");
+    }
+});
+```
+
+### 4. HelpDialog - Finestra di aiuto
+
+La classe **HelpDialog** rappresenta una finestra di dialogo separata, che viene mostrata al click del pulsante "Help", garantendo che l'utente possa consultare le regole senza perdere di vista l'interfaccia principale.
+```java
+public HelpDialog(Frame parent) {
+    super(parent, "Aiuto", true);
+    setSize(600, 400);
+    setLocationRelativeTo(parent);
+    // Configurazione contenuto...
+}
+```
+
+### 5. MapDialog - Mappa interattiva
+
+La classe **MapDialog** rappresenta una finestra separata, che visualizza una mappa grafica delle stanze con:
+
+- Disegno custom delle stanze e corridoi
+- Indicazione della stanza corrente
+- Stanze visitate evidenziate
+- Interattività con hover e click
+```java
+@Override
+protected void paintComponent(Graphics g) {
+    super.paintComponent(g);
+    Graphics2D g2d = (Graphics2D) g;
+    g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, 
+                         RenderingHints.VALUE_ANTIALIAS_ON);
+    
+    // Disegna stanze e collegamenti
+    drawRooms(g2d);
+    drawConnections(g2d);
+    highlightCurrentRoom(g2d);
+}
+```
+
+#### Caratteristiche chiave dell'interfaccia:
+
+- **Palette colori coerente**: uso di colori freddi (azzurro/grigio) per creare un'atmosfera gotica
+- **Layout responsivo**: utilizzo di `GroupLayout` per posizionamento preciso dei componenti
+- **Componenti personalizzati**: override di `paintComponent()` per rendering custom
+- **Gestione degli eventi**: listener per mouse, tastiera e azioni dei pulsanti
+- **Animazioni**: transizioni fluide tra pannelli e effetti di testo
+
+L'interfaccia Swing offre un'esperienza utente completa e immersiva, integrando perfettamente la logica di gioco con una presentazione visiva curata.
+
+---
+
+## 6. Thread e Programmazione Concorrente
+
+Abbiamo utilizzato i **Thread** per la gestione dell'input da parte dell'utente e l'animazione del testo.
+
+### 1. GameFlowController - Thread di ascolto dell'input
+
+**GameFlowController** è una classe che impiega esplicitamente un thread dedicato per monitorare in modo continuo l'input dell'utente senza bloccare l'interfaccia grafica o il resto del flusso di gioco.
+
+Il thread viene avviato nel metodo `startInputListener()`, dove viene creata un'istanza anonima di `Thread` contenente un ciclo infinito che controlla periodicamente la presenza di nuovo input utente.
+```java
+public static void startInputListener() {
+    new Thread(() -> {
+        while (true) {
+            try {
+                Thread.sleep(100);
+                if (!isUserInputEmpty()) {
+                    String input = getUserInput();
+                    InputService.gameFlow(input);
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }).start();
+}
+```
+
+Per evitare condizioni di gara nella lettura e scrittura dell'input, i metodi `getUserInput()`, `setUserInput()` e `isUserInputEmpty()` sono dichiarati **synchronized**. Questo garantisce che il thread di ascolto e eventuali altri componenti che modificano l'input non accedano contemporaneamente alla variabile condivisa, preservando la coerenza del buffer di input.
+
+Il thread dedicato esegue il seguente comportamento:
+
+- Verifica ciclicamente, ogni 100 ms, se è stato inserito nuovo input
+- Quando l'input è disponibile, lo recupera tramite `getUserInput()` e lo passa a `InputService.gameFlow()`, avviando l'elaborazione della logica di gioco
+- Continua l'ascolto in modo indefinito, garantendo una gestione reattiva dell'interazione utente
+
+Questo approccio consente di mantenere la GUI completamente reattiva mentre il gioco controlla costantemente l'input senza bloccare il thread principale.
+
+### 2. TextAnimator - Thread per animazione del testo
+
+**TextAnimator** è una classe che estende `Thread` e serve per creare piccoli effetti di animazione del testo sulla GUI:
+
+- **SCRITTURA**: scrive testo lentamente, carattere per carattere
+- **PAUSA**: esegue una pausa (sleep) senza bloccare l'interfaccia principale
+
+Estendendo la classe `Thread`, ogni istanza di `TextAnimator` rappresenta un'animazione indipendente, che può essere avviata con il metodo `start()` ed eseguita in parallelo al resto dell'applicazione.
+```java
+public class TextAnimator extends Thread {
+    private String text;
+    private int duration;
+    private AnimationType type;
+    private static boolean isWriting = false;
+    
+    public enum AnimationType {
+        SCRITTURA,
+        PAUSA
+    }
+    
+    @Override
+    public void run() {
+        try {
+            if (type == AnimationType.SCRITTURA) {
+                synchronized (TextAnimator.class) {
+                    while (isWriting) {
+                        Thread.sleep(50);
+                    }
+                    isWriting = true;
+                }
+                effettoScritturaGUI();
+            } else if (type == AnimationType.PAUSA) {
+                Thread.sleep(duration);
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } finally {
+            synchronized (TextAnimator.class) {
+                isWriting = false;
+            }
+        }
+    }
+}
+```
+
+Per controllare l'esecuzione degli effetti di scrittura, la classe utilizza un flag statico (`isWriting`) che indica se è attualmente attivo un thread di animazione del testo. Tale variabile è gestita all'interno di blocchi sincronizzati per garantire l'accesso concorrente sicuro ed evitare la sovrapposizione di più effetti di scrittura simultanei.
+
+Il metodo `run()` seleziona l'effetto da eseguire in base al tipo specificato:
+
+- **SCRITTURA**: il testo viene mostrato carattere per carattere tramite il metodo `effettoScritturaGUI()`, con una pausa programmata tra un carattere e il successivo. L'uso di `Thread.sleep()` permette di simulare l'effetto "macchina da scrivere" senza bloccare l'interfaccia.
+- **PAUSA**: il thread esegue semplicemente una sospensione temporale (`Thread.sleep(durata)`), utile per introdurre ritardi controllati nelle sequenze di testo.
+
+Al termine dell'animazione, la variabile `isWriting` viene riportata a `false` nel blocco `finally`, assicurando che lo stato dell'animatore sia sempre coerente anche in caso di eccezioni o interruzioni del thread.
+
+---
+
+## 7. Socket e/o REST
+
+Nel nostro progetto abbiamo implementato un server REST locale utilizzando **Grizzly HTTP Server** per esporre un endpoint che visualizza i crediti del gioco.
+
+### 1. RestServer - Avvio del server
+
+La classe **RestServer** gestisce l'avvio e la configurazione del server Grizzly sulla porta 8080.
+```java
+public class RestServer {
+    private static final String BASE_URI = "http://localhost:8080/";
+    
+    public static HttpServer startServer() {
+        final HttpServer server = HttpServerFactory.createHttpServer(BASE_URI);
+        server.getServerConfiguration().addHttpHandler(
+            new CreditsHandler(), "/api/credits"
+        );
+        
+        try {
+            server.start();
+            System.out.println("Server REST avviato su: " + BASE_URI);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        
+        return server;
+    }
+}
+```
+
+Il server viene configurato per:
+
+- Ascoltare sulla porta 8080 (standard per applicazioni HTTP alternative)
+- Registrare un handler per gestire le richieste all'endpoint `/api/credits`
+- Avviarsi in un thread separato per non bloccare l'applicazione principale
+- Chiudersi automaticamente quando l'applicazione termina
+
+Il server viene avviato automaticamente all'avvio dell'applicazione nel `main()`:
+```java
+public static void main(String[] args) {
+    RestServer.startServer();
+    SwingUtilities.invokeLater(() -> new MainFrame());
+}
+```
+
+### 2. CreditsHandler - Gestione dell'endpoint
+
+La classe **CreditsHandler** estende `HttpHandler` e gestisce le richieste HTTP all'endpoint `/api/credits`:
+```java
+public class CreditsHandler extends HttpHandler {
+    @Override
+    public void service(Request request, Response response) throws Exception {
+        response.setHeader("Access-Control-Allow-Origin", "*");
+        response.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
+        response.setHeader("Access-Control-Allow-Headers", "Content-Type");
+        
+        if (request.getMethod().toString().equalsIgnoreCase("OPTIONS")) {
+            response.setStatus(200);
+            return;
+        }
+        
+        if (!request.getMethod().toString().equalsIgnoreCase("GET")) {
+            sendErrorResponse(response, 405, "Metodo non permesso");
+            return;
+        }
+        
+        try {
+            sendHtmlResponse(response);
+        } catch (Exception e) {
+            sendErrorResponse(response, 500, "Errore interno del server");
+        }
+    }
+}
+```
+
+Il metodo `service()` implementa la logica REST completa:
+
+1. **Configurazione CORS**: permette richieste da qualsiasi origine (utile per sviluppo e test)
+2. **Gestione preflight**: risponde alle richieste OPTIONS usate dai browser moderni
+3. **Validazione metodo HTTP**: accetta solo GET, rifiutando POST/PUT/DELETE (seguendo il principio REST che GET è idempotente e safe)
+4. **Gestione errori**: restituisce codici HTTP appropriati (405 per metodo non permesso, 500 per errori interni)
+
+Il metodo `sendHtmlResponse()` prepara ed invia la risposta HTTP, che include:
+
+- **Status code 200**: indica che la richiesta è stata elaborata con successo
+- **Content-Type**: specifica che il contenuto è HTML con encoding UTF-8
+- **Body**: contiene l'HTML generato dinamicamente dal metodo `generateHtml()`
+```java
+private void sendHtmlResponse(Response response) throws IOException {
+    response.setStatus(200);
+    response.setContentType("text/html; charset=UTF-8");
+    
+    String html = generateHtml();
+    response.getWriter().write(html);
+}
+```
+
+Il metodo `generateHtml()` costruisce la pagina HTML che include:
+
+- **Stili CSS inline**: permettono di creare un design coerente con l'atmosfera gotica del gioco senza file esterni
+- **Struttura semantica**: utilizza tag HTML appropriati (h1, h2, ul, li) per una corretta organizzazione del contenuto
+- **Design responsive**: layout centrato con larghezza massima per ottimale visualizzazione su schermi di diverse dimensioni
+```java
+private String generateHtml() {
+    return "<!DOCTYPE html>" +
+           "<html>" +
+           "<head>" +
+           "<meta charset='UTF-8'>" +
+           "<title>Riconoscimenti - La Casa di Cenere</title>" +
+           "<style>" +
+           "body { font-family: 'Georgia', serif; " +
+           "background: linear-gradient(135deg, #2c3e50, #34495e); " +
+           "color: #ecf0f1; margin: 0; padding: 20px; }" +
+           "/* Altri stili... */" +
+           "</style>" +
+           "</head>" +
+           "<body>" +
+           "<div class='container'>" +
+           "<h1>La Casa di Cenere</h1>" +
+           "<h2>Riconoscimenti</h2>" +
+           "<!-- Contenuto crediti -->" +
+           "</div>" +
+           "</body>" +
+           "</html>";
+}
+```
+
+Il server implementa una gestione completa degli errori HTTP con il metodo `sendErrorResponse()`:
+```java
+private void sendErrorResponse(Response response, int statusCode, String message) 
+        throws IOException {
+    response.setStatus(statusCode);
+    response.setContentType("text/plain; charset=UTF-8");
+    response.getWriter().write(message);
+}
+```
+
+Nel menu principale del gioco, **MenuPanel**, è presente il bottone "RICONOSCIMENTI", che effettua una richiesta al server REST locale:
+```java
+creditsButton.addActionListener(evt -> {
+    try {
+        Desktop.getDesktop().browse(
+            new URI("http://localhost:8080/api/credits")
+        );
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+});
+```
+
+Quando l'utente clicca sul bottone:
+
+1. Viene costruito l'URL dell'endpoint REST: `http://localhost:8080/api/credits`
+2. L'API `Desktop.browse()` apre il browser predefinito
+3. Il browser effettua automaticamente una richiesta GET HTTP all'URL specificato
+4. Il server REST riceve la richiesta e restituisce la pagina HTML
+5. Il browser visualizza il contenuto ricevuto
+
+---
+
+## Conclusioni
+
+"La Casa di Cenere" è stata per noi un'occasione per unire creatività e programmazione, trasformando un'idea in un'avventura completa. Partendo da una semplice villa misteriosa, abbiamo costruito un gioco che vuole coinvolgere il giocatore con enigmi, oggetti da trovare e un'atmosfera un po' gotica e surreale.
+
+Durante lo sviluppo abbiamo imparato a organizzare meglio il lavoro, a collaborare e a capire quanto ogni dettaglio – dalla grafica, ai comandi, fino alle descrizioni – possa cambiare l'esperienza finale. Realizzare l'interfaccia, gestire le stanze, scrivere le parti narrative e far funzionare tutto insieme è stato impegnativo, ma anche molto gratificante.
+
+Questo progetto per noi rappresenta non solo un gioco, ma un percorso: fatto di problemi risolti, idee cambiate in corsa e tante soddisfazioni. "La Casa di Cenere" è il risultato di ciò che abbiamo imparato e della voglia di creare qualcosa di nostro, e speriamo che chi lo gioca possa ritrovare almeno un po' del divertimento che noi abbiamo messo nel realizzarlo.
+
+---
+
+**Fine della Documentazione**
