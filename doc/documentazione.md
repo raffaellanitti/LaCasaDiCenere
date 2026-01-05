@@ -31,12 +31,12 @@ Il giocatore deve esplorare cinque stanze interconnesse, ciascuna contenente eni
 - **Lascia [oggetto]** - Lascia un oggetto nella stanza corrente
 
 #### Funzionalità aggiuntive:
-- Sistema di inventario per gestire gli oggetti raccolti
-- Enigmi logici incluso un mini-gioco degli specchi nella Stanza 4
-- Interfaccia grafica realizzata con Swing con immagini per ogni stanza
-- Database H2 per memorizzare le descrizioni dinamiche
-- Sistema di salvataggio/caricamento tramite file JSON
-- Server REST per visualizzare i crediti del gioco
+- **Sistema di inventario** per gestire gli oggetti raccolti
+- **Enigmi logici** incluso un mini-gioco degli specchi nella Stanza 4
+- **Interfaccia grafica** realizzata con Swing con immagini per ogni stanza
+- **Database H2** per memorizzare le descrizioni dinamiche
+- **Sistema di salvataggio/caricamento** tramite file JSON
+- **Server REST** per visualizzare i crediti del gioco
 
 ---
 
@@ -104,30 +104,25 @@ Enumerazioni e tipi:
 
 ### Diagramma del Sistema di Parsing dei Comandi
 
-Questo diagramma rappresenta il flusso di elaborazione di un comando testuale inserito dall'utente.
-
 ![Diagramma delle Classi](./class-diagram.png)
 
+Questo diagramma rappresenta il flusso di elaborazione di un comando testuale inserito dall'utente.
 
 ### Descrizione del funzionamento:
 
 #### 1. Parser
 Il **Parser** è il cuore del sistema: riceve l'input testuale dell'utente (es. "prendi candela") e lo analizza.
-
 **Attributi principali:**
 - `availableCommands`: tutti i comandi disponibili nel gioco (nord, sud, prendi, usa,...)
 - `availableItems`: tutti gli oggetti presenti nel gioco
 - `stopwords`: parole da ignorare (il, la, un, di,...)
 - `gameManager`: riferimento al controller del gioco
-
 **Metodo chiave:**
 - `parse(input: String): ParserOutput` → analizza la stringa e restituisce un oggetto
 
 #### 2. Command
 **Command** rappresenta un singolo comando del gioco.
-
 Il Parser confronta la prima parola dell'input con i nomi ed alias di tutti i Command per identificare cosa vuole fare l'utente.
-
 **Attributi:**
 - `name: String` - Nome del comando
 - `aliases: List<String>` - Alias alternativi
@@ -135,22 +130,18 @@ Il Parser confronta la prima parola dell'input con i nomi ed alias di tutti i Co
 
 #### 3. CommandType
 **CommandType** è l'enumerazione che definisce tutti i possibili comandi:
-
 **Movimento:**
 - `NORD`, `SUD`, `EST`, `OVEST`
-
 **Azioni:**
 - `OSSERVA`, `PRENDI`, `USA`, `LASCIA`
 
 #### 4. Item
 **Item** rappresenta un oggetto presente nel gioco.
-
 **Attributi:**
 - `name: String` - Nome dell'oggetto
 - `description: String` - Descrizione
 - `isPickable: boolean` - Se può essere raccolto
 - `aliases: List<String>` - Nomi alternativi
-
 Il Parser usa questi dati per riconoscere gli oggetti nominati dall'utente.
 
 #### 5. ParserOutput
@@ -162,7 +153,6 @@ Il Parser usa questi dati per riconoscere gli oggetti nominati dall'utente.
 
 #### 6. CommandHandler
 **CommandHandler** riceve il ParserOutput ed esegue l'azione corrispondente.
-
 **Funzionamento:**
 1. Crea una `CommandKey` combinando `CommandType` + numero di args
 2. Usa questa chiave per cercare nella `commandMap`
@@ -173,7 +163,6 @@ Il Parser usa questi dati per riconoscere gli oggetti nominati dall'utente.
 **CommandKey** combina:
 - `command: CommandType` - Tipo di comando
 - `args: int` - Numero di argomenti
-
 Serve per differenziare comandi con lo stesso tipo ma diverso numero di argomenti:
 - `OSSERVA` con 0 args → osserva la stanza
 - `OSSERVA` con 1 arg → osserva un oggetto specifico
@@ -181,7 +170,6 @@ Serve per differenziare comandi con lo stesso tipo ma diverso numero di argoment
 #### 8. CommandAction
 **CommandAction** è l'interfaccia funzionale con un solo metodo:
 - `execute(parsedText: ParserOutput): void`
-
 Ogni comando implementa questa interfaccia (tramite lambda) con la logica specifica dell'azione.
 
 ---
@@ -204,7 +192,6 @@ Ogni comando implementa questa interfaccia (tramite lambda) con la logica specif
 ### 4. Pattern Singleton
 - **Game** e **MirrorGame** usano il pattern Singleton per garantire un'unica istanza globale
 - Evita duplicazioni dello stato di gioco
-- L'istanza di Game è inizializzata staticamente (`private static Game game = new Game()`), garantendo thread-safety senza necessità di sincronizzazione
 
 ### 5. Pattern Strategy
 - **CommandAction** è un'interfaccia funzionale che definisce il comportamento dei comandi
@@ -229,119 +216,254 @@ Ogni comando implementa questa interfaccia (tramite lambda) con la logica specif
 
 #### Specifica Sintattica
 
-**Tipi:** List, Item, Integer, Boolean
-
-**Operatori:**
-
-| Operatore | Descrizione |
-|-----------|-------------|
-| `newList() -> List` | crea una nuova lista vuota |
-| `add(List, Item, Integer) -> List` | aggiunge un elemento alla lista nella posizione specificata |
-| `isEmpty(List) -> Boolean` | restituisce true se la lista è vuota; altrimenti false |
-| `getLastIndex(List) -> Integer` | restituisce l'ultima posizione occupata da un elemento |
-| `getIndex(List, Item) -> Integer` | restituisce la posizione dell'elemento specificato |
-| `getItem(List, Integer) -> Item` | restituisce l'elemento nella posizione specificata |
-| `remove(List, Integer) -> List` | rimuove dalla lista l'elemento nella posizione specificata |
-| `contains(List, Item) -> Boolean` | restituisce true se l'elemento specificato è contenuto nella lista |
+<table>
+    <thead>
+        <tr>
+            <th colspan="2">Tipi</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td colspan="2"><code>List</code>, <code>Item</code>, <code>Integer</code>, <code>Boolean</code></td>
+        </tr>
+        <tr>
+            <td colspan="2" align="center"><strong>Operatori</strong></td>
+        </tr>
+        <tr>
+            <td><code>newList() -> List</code></td>
+            <td>Crea una nuova lista vuota</td>
+        </tr>
+        <tr>
+            <td><code>add(List, Item, Integer) -> List</code></td>
+            <td>Aggiunge un elemento alla lista nella posizione specificata</td>
+        </tr>
+        <tr>
+            <td><code>isEmpty(List) -> Boolean</code></td>
+            <td>Restituisce <code>true</code> se la lista è vuota altrimenti <code>false</code></td>
+          </tr>
+            <tr>
+                <td><code>getLastIndex(List) -> Integer</code></td>
+                <td>Restituisce l'ultima posizione occupata da un elemento</td>
+            </tr> 
+            <tr>
+                <td><code>getIndex(List, Item) -> Integer</code></td>
+                <td>Restituisce la posizione dell'elemento specificato</td>
+            </tr> 
+            <tr>
+                <td><code>getItem(List, Integer) -> Item</code></td>
+                <td>Restituisce l'elemento nella posizione specificata</td> 
+            </tr> 
+            <tr>
+                <td><code>remove(List, Integer) -> List</code></td>
+                <td>Rimuove dalla lista l'elemento nella posizione specificata</td>  
+            </tr>
+            <tr>
+                <td><code>contains(List, Item) -> Boolean</code></td>
+                <td>Restituisce <code>true</code> se l'elemento specificato è contenuto nella lista</td>
+            </tr>
+    </tbody>
+</table>
 
 > **Nota:** Item è un tipo generico, che può essere sostituito con qualsiasi altro tipo di dato. Integer e Boolean sono tipi ausiliari alla definizione della specifica algebrica della lista.
 
-#### Costruttori di l'
+#### Osservazioni e Costruttori
 
-**Osservazioni:**
-
-| Osservazione | newList | add(l, it, id) |
-|--------------|---------|----------------|
-| `isEmpty(l')` | true | false |
-| `getLastIndex(l')` | error | if isEmpty(l) then 1 else getLastIndex(l) + 1 |
-| `getIndex(l', it')` | error | if it = it' then id else getIndex(l, it') |
-| `getItem(l', id')` | error | if id = id' then it else getItem(l, id') |
-| `remove(l', id')` | error | if id = id' then l else add(remove(l, id'), it, id) |
-| `contains(l', it')` | false | if it = it' then true else contains(l, it') |
+<table>
+  <thead>
+    <tr>
+      <th></th>
+      <th colspan="2">Costruttori di l'</th>
+    </tr>
+  </thead>
+  <tbody align="center">
+    <tr>
+      <td><strong>Osservazioni</strong></td>
+      <td><code>newList</code></td>
+      <td><code>add(l, it, id)</code></td>
+    </tr>
+    <tr>
+      <td><code>isEmpty(l')</code></td>
+      <td><code>true</code></td>
+      <td><code>false</code></td>
+    </tr>
+    <tr>
+      <td><code>getLastIndex(l')</code></td>
+      <td><code>error</code></td>
+      <td>if <code>isEmpty(l)</code> then <code>1</code> else <code>getLastIndex(l) + 1</code></td>
+    </tr>
+    <tr>
+      <td><code>getIndex(l', it')</code></td>
+      <td><code>error</code></td>
+      <td>if <code>it = it'</code> then <code>id</code> else <code>getIndex(l, it')</code></td>
+    </tr>
+    <tr>
+      <td><code>getItem(l', id')</code></td>
+      <td><code>error</code></td>
+      <td>if <code>id = id'</code> then <code>it</code> else <code>getItem(l, id')</code></td>
+    </tr>
+    <tr>
+      <td><code>remove(l', id')</code></td>
+      <td><code>error</code></td>
+      <td>if <code>id = id'</code> then <code>l</code> else <code>add(remove(l, id'), it)</code></td>
+    </tr>
+    <tr>
+      <td><code>contains(l', it')</code></td>
+      <td><code>false</code></td>
+      <td>if <code>it = it'</code> then <code>true</code> else <code>contains(l, it')</code></td>
+    </tr>
+  </tbody>
+</table>
 
 #### Specifica Semantica
+- **DECLARE**
+  - <code>l</code>, <code>l'</code>: <code>List</code>
+  - <code>it</code>, <code>it'</code>: <code>Item</code>
+  - <code>id</code>, <code>id'</code>: <code>Integer</code>
 
-**DECLARE:**
-- l, l' : List
-- it, it' : Item
-- id, id' : Integer
-
-**OPERATIONS:**
-- `isEmpty(newList) = true`
-- `isEmpty(add(l, it, id)) = false`
-- `getLastIndex(add(l, it, id)) = if isEmpty(l) then 1 else getLastIndex(l) + 1`
-- `getIndex(add(l, it, id), it') = if it = it' then id else getIndex(l, it')`
-- `getItem(add(l, it, id), id') = if id = id' then it else getItem(l, id')`
-- `remove(add(l, it, id), id') = if id = id' then l else add(remove(l, id'), it, id)`
-- `contains(newList, it') = false`
-- `contains(add(l, it, id), it') = if it = it' then true else contains(l, it')`
+- **OPERATIONS**
+  - <code>isEmpty(newList)</code> = <code>true</code>
+  - <code>isEmpty(add(l, it, id))</code> = <code>false</code>
+  - <code>getLastIndex(add(l, it, id))</code> = if <code>isEmpty(l)</code> then <code>1</code> else <code>getLastIndex(l) + 1</code>
+  - <code>getIndex(add(l, it, id), it')</code> = if <code>it = it'</code> then <code>id</code> else <code>getIndex(l, it')</code>
+  - <code>getItem(add(l, it, id), id')</code> = if <code>id = id'</code> then <code>it</code> else <code>getItem(l, id')</code>
+  - <code>remove(add(l, it, id), id')</code> = if <code>id = id'</code> then <code>l</code> else <code>add(remove(l, id'), it)</code>
+  - <code>contains(newList, it')</code> = <code>false</code>
+  - <code>contains(add(l, it, id), it')</code> = if <code>it = it'</code> then <code>true</code> else <code>contains(l, it')</code>
 
 #### Specifica di Restrizione
-
-**RESTRICTIONS:**
-- `getLastIndex(newList) = error`
-- `getIndex(newList, it') = error`
-- `getItem(newList, id') = error`
-- `remove(newList, id') = error`
+- **RESTRICTIONS**
+  - <code>getLastIndex(newList)</code> = <code>error</code>
+  - <code>getIndex(newList, it')</code> = <code>error</code>
+  - <code>getItem(newList, id')</code> = <code>error</code>
+  - <code>remove(newList, id')</code> = <code>error</code>
 
 ---
 
 ### Specifica Algebrica della Mappa
 
 #### Specifica Sintattica
+<table>
+    <thead>
+        <tr>
+            <th colspan="2">Tipi</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td colspan="2">Map, Key, Value, Boolean, Integer</td>
+        </tr>
+        <tr>
+            <td colspan="2"><strong>Operatori</strong></td>
+        </tr>
+        <tr>
+            <td><code>newMap() -> Map</code></td>
+            <td>Crea una nuova mappa vuota</td>
+        </tr>
+        <tr>
+            <td><code>isEmpty(Map) -> Boolean</code></td>
+            <td>Restituisce <code>true</code> se la mappa è vuota, <code>false</code> altrimenti</td>
+        </tr>
+        <tr>
+            <td><code>put(Map, Key, Value) -> Map</code></td>
+            <td>Aggiunge una coppia chiave-valore alla mappa, o, se già presente, ne aggiorna il valore</td>
+        </tr>
+        <tr>
+            <td><code>get(Map, Key) -> Value</code></td>
+            <td>Restituisce il valore associato alla chiave specificata</td>
+        </tr>
+        <tr>
+            <td><code>containsKey(Map, Key) -> Boolean</code></td>
+            <td>Restituisce <code>true</code> se la chiave specificata è presente nella mappa</td>
+        </tr> 
+        <tr>
+            <td><code>containsValue(Map, Value) -> Boolean</code></td>
+            <td>Restituisce <code>true</code> se il valore specificato è presente nella mappa</td> 
+        </tr>
+        <tr>
+            <td><code>remove(Map, Key) -> Map</code></td>
+            <td>Rimuove la chiave ed il valore associato ad essa dalla mappa</td>
+        </tr> 
+        <tr>
+            <td><code>size(map) -> Integer</code></td>
+            <td>Restituisce il numero di coppie chiave-valore presenti nella mappa</td>  
+        </tr>
+    </tbody>
+</table>
 
-**Tipi:** Map, Key, Value, Boolean, Integer
-
-**Operatori:**
-
-| Operatore | Descrizione |
-|-----------|-------------|
-| `newMap() -> Map` | crea una nuova mappa vuota |
-| `isEmpty(Map) -> Boolean` | restituisce true se la mappa è vuota; false altrimenti |
-| `put(Map, Key, Value) -> Map` | aggiunge una coppia chiave-valore alla mappa, o, se già presente, ne aggiorna il valore |
-| `get(Map, Key) -> Value` | restituisce il valore associato alla chiave specificata |
-| `containsKey(Map, Key) -> Boolean` | restituisce true se la chiave specificata è presente nella mappa |
-| `containsValue(Map, Value) -> Boolean` | restituisce true se il valore specificato è presente nella mappa |
-| `remove(Map, Key) -> Map` | rimuove la chiave ed il valore associato ad essa dalla mappa |
-| `size(Map) -> Integer` | restituisce il numero di coppie chiave-valore presenti nella mappa |
-
-#### Costruttori di m'
+#### Osservazioni e Costruttori
 
 **Osservazioni:**
 
-| Osservazione | newMap | put(m, k, v) |
-|--------------|--------|--------------|
-| `isEmpty(m')` | true | false |
-| `containsKey(m', k')` | false | if k = k' then true else containsKey(m, k') |
-| `containsValue(m', v')` | false | if v = v' then true else containsValue(m, v') |
-| `get(m', k')` | error | if k = k' then v else get(m, k') |
-| `remove(m', k')` | error | if k = k' then m else put(remove(m, k'), k, v) |
-| `size(m')` | 0 | if isEmpty(m) then 1 else size(m) + 1 |
+<table>
+  <thead>
+    <tr>
+      <th></th>
+      <th colspan="2">Costruttori di m'</th>
+    </tr>
+  </thead>
+  <tbody align="center">
+    <tr>
+      <td><strong>Osservazioni</strong></td>
+      <td><code>newMap</code></td>
+      <td><code>put(m, k, v)</code></td>
+    </tr>
+    <tr>
+      <td><code>isEmpty(m')</code></td>
+      <td><code>true</code></td>
+      <td><code>false</code></td>
+    </tr>
+    <tr>
+      <td><code>containsKey(m', k')</code></td>
+      <td><code>false</code></td>
+      <td>if <code>k = k'</code> then <code>true</code> else <code>containsKey(m, k')</code></td>
+    </tr>
+    <tr>
+      <td><code>containsValue(m', v')</code></td>
+      <td><code>false</code></td>
+      <td>if <code>v = v'</code> then <code>true</code> else <code>containsValue(m, v')</code></td>
+    </tr>
+    <tr>
+      <td><code>get(m', k')</code></td>
+      <td><code>error</code></td>
+      <td>if <code>k = k'</code> then <code>v</code> else <code>get(m, k')</code></td>
+    </tr>
+    <tr>
+      <td><code>remove(m', k')</code></td>
+      <td><code>error</code></td>
+      <td>if <code>k = k'</code> then <code>m</code> else <code>put(remove(m, k'), k, v)</code></td>
+    </tr>
+    <tr>
+      <td><code>size(m')</code></td>
+      <td><code>0</code></td>
+      <td>if <code>isEmpty(m)</code> then <code>1</code> else <code>size(m) + 1</code></td>
+    </tr>
+  </tbody>
+</table>
 
 #### Specifica Semantica
 
-**DECLARE:**
-- m, m': Map
-- k, k': Key
-- v, v': Value
+- **DECLARE**
+  - <code>m</code>, <code>m'</code>: <code>Map</code>
+  - <code>k</code>, <code>k'</code>: <code>Key</code>
+  - <code>v</code>, <code>v'</code>: <code>Value</code>
 
-**OPERATIONS:**
-- `isEmpty(newMap) = true`
-- `isEmpty(put(m, k, v)) = false`
-- `containsKey(newMap, k') = false`
-- `containsKey(put(m, k, v), k') = if k = k' then true else containsKey(m, k')`
-- `containsValue(newMap, v') = false`
-- `containsValue(put(m, k, v), v') = if v = v' then true else containsValue(m, v')`
-- `get(put(m, k, v), k') = if k = k' then v else get(m, k')`
-- `remove(put(m, k, v), k') = if k = k' then m else put(remove(m, k'), k, v)`
-- `size(newMap) = 0`
-- `size(put(m, k, v)) = size(m) + 1`
+- **OPERATIONS**
+  - <code>isEmpty(newMap)</code> = <code>true</code>
+  - <code>isEmpty(put(m, k, v))</code> = <code>false</code>
+  - <code>containsKey(newMap, k')</code> = <code>false</code>
+  - <code>containsKey(put(m, k, v), k')</code> = if <code>k = k'</code> then <code>true</code> else <code>containsKey(m, k')</code>
+  - <code>containsValue(newMap, v')</code> = <code>false</code>
+  - <code>containsValue(put(m, k, v), v')</code> = if <code>v = v'</code> then <code>true</code> else <code>containsValue(m, v')</code>
+  - <code>get(put(m, k, v), k')</code> = if <code>k = k'</code> then <code>v</code> else <code>get(m, k')</code>
+  - <code>remove(put(m, k, v), k')</code> = if <code>k = k'</code> then <code>m</code> else <code>put(remove(m, k'), k, v)</code>
+  - <code>size(newMap)</code> = <code>0</code>
+  - <code>size(put(m, k, v))</code> = <code>size(m) + 1</code>
 
 #### Specifica di Restrizione
 
-**RESTRICTIONS:**
-- `get(newMap, k') = error`
-- `remove(newMap, k') = error`
+- **RESTRICTIONS**
+  - <code>get(newMap, k')</code> = <code>error</code>
+  - <code>remove(newMap, k')</code> = <code>error</code>
 
 > Queste specifiche algebriche descrivono formalmente il comportamento delle strutture dati Lista e Mappa utilizzate nell'implementazione del nostro gioco "La Casa di Cenere". Le operazioni definite corrispondono alle funzionalità implementate tramite le classi ArrayList e HashMap di Java.
 
@@ -363,12 +485,12 @@ Il progetto fa uso estensivo dei **generics** forniti dal Java Collections Frame
 - `List<RoomConnection>` - per rappresentare la mappa dei collegamenti tra le stanze
 - `List<String>` - per gli alias di oggetti e comandi
 
-#### ItemContainer: Pattern Composite
 
-È stata implementata la classe **ItemContainer** che estende **Item** e permette di creare oggetti contenitori (come lo Scrigno nel gioco):
+È stata implementata la classe **ItemContainer** che estende **Item** e permette di creare oggetti contenitori (come lo Scrigno nel gioco), ma non è una classe generica personalizzata:
 
 ```java
 public class ItemContainer extends Item {
+
     private List<Item> list = new ArrayList<>();
     
     public void add(Item item) {
@@ -377,10 +499,6 @@ public class ItemContainer extends Item {
     
     public void remove(Item item) {
         list.remove(item);
-    }
-    
-    public List<Item> getList() {
-        return list;
     }
 }
 ```
@@ -428,29 +546,9 @@ Converte gli oggetti di tipo Item in formato JSON, salvando solo gli oggetti che
 
 #### ItemDeserializer Custom
 
-Dato che il nostro gioco contiene una gerarchia complessa di oggetti (come Item e ItemContainer), abbiamo registrato un **ItemDeserializer** personalizzato:
+Dato che il nostro gioco contiene una gerarchia complessa di oggetti (come Item e ItemContainer), abbiamo registrato un **ItemDeserializer** personalizzato, così da garantire la corretta ricostruzione delle classi derivate durante la deserializzazione. 
 
-```java
-public class ItemDeserializer implements JsonDeserializer<Item> {
-    @Override
-    public Item deserialize(JsonElement json, Type typeOfT, 
-                           JsonDeserializationContext context) {
-        JsonObject obj = json.getAsJsonObject();
-        
-        if (obj.has("list")) {
-            // Deserializza come ItemContainer
-            ItemContainer container = new ItemContainer(...);
-            // ...
-            return container;
-        }
-        
-        // Deserializza come Item normale
-        return new Item(...);
-    }
-}
-```
-
-Questo garantisce la corretta ricostruzione delle classi derivate durante la deserializzazione. Questo livello di controllo non sarebbe stato ottenibile con la semplice interfaccia `java.io.Serializable`.
+Questo livello di controllo non sarebbe stato ottenibile con la semplice interfaccia `java.io.Serializable`.
 
 ---
 
@@ -495,14 +593,6 @@ String query = "SELECT DESCRIZIONE FROM DESCRIZIONE WHERE " +
                "OGGETTO1 = ? AND OGGETTO2 = ?";
 ```
 
-> **Nota:** Il metodo `printFromDB()` apre e chiude una connessione per ogni query. Questa scelta è stata fatta per semplicità, dato che le query sono poco frequenti. In un'applicazione con molte query concorrenti, sarebbe preferibile utilizzare un connection pool.
-
-#### Vantaggi dell'adozione di H2 e JDBC:
-
-- **Separazione Dati-Logica**: La struttura statica del gioco, come le descrizioni delle stanze e le interazioni complesse, è separata dalla logica di gioco in Java
-- **Gestione Contenuti**: Facilita la modifica e l'aggiunta di nuovi contenuti narrativi (nuove descrizioni, reazioni a comandi) senza alterare il codice
-- **Persistenza Strutturale**: Garantisce che la configurazione di base del gioco (nomi delle stanze, collegamenti iniziali, descrizioni base) sia persistente e caricata in modo coerente all'avvio
-
 ---
 
 ### 4. Lambda Expressions
@@ -511,7 +601,7 @@ Le **lambda expressions** sono state utilizzate in vari punti del progetto per r
 
 #### 1. CommandHandler
 
-Nella classe **CommandHandler**, le lambda expressions sono state utilizzate per definire i comportamenti dei comandi attraverso l'interfaccia funzionale **CommandAction**:
+Nella classe **CommandHandler**, le lambda expressions sono state utilizzate per definire i comportamenti dei comandi attraverso l'interfaccia funzionale **CommandAction**. Questo approccio ha permesso di creare una mappa di comandi con comportamenti associati in modo dichiarativo.
 
 ```java
 commandMap.put(new CommandKey(CommandType.PRENDI, 1),
@@ -534,13 +624,6 @@ commandMap.put(new CommandKey(CommandType.PRENDI, 1),
 ```
 
 L'interfaccia funzionale **CommandAction** definisce un singolo metodo astratto che accetta un **ParserOutput**, permettendo l'uso di lambda expressions per implementazioni concise dei vari comandi di gioco.
-
-```java
-@FunctionalInterface
-public interface CommandAction {
-    void execute(ParserOutput parsedText);
-}
-```
 
 #### 2. Parser
 
@@ -592,14 +675,6 @@ newGameButton.addActionListener(evt -> {
 });
 ```
 
-#### Benefici dell'adozione delle Lambda Expressions:
-
-1. **Codice più conciso**: Eliminazione di classi anonime verbose, specialmente negli event listener di Swing
-2. **Leggibilità migliorata**: Le operazioni su stream risultano più dichiarative e intuitive
-3. **Manutenibilità**: La logica dei comandi è centralizzata e facilmente modificabile nella commandMap
-4. **Programmazione funzionale**: Maggiore espressività nel trattamento delle collezioni con le Stream API
-5. **Riduzione boilerplate**: Meno codice ripetitivo nella gestione di thread ed eventi
-
 ---
 
 ### 5. SWING
@@ -641,25 +716,47 @@ Questo layout agisce come una pila di schede, permettendo di mostrare solo un pa
 #### 2. MenuPanel - Menu principale
 
 La classe **MenuPanel**, che estende `JPanel`, presenta il menu iniziale con sfondo personalizzato e pulsanti stilizzati.
+
 ```java
-backgroundPanel = new JPanel() {
-    @Override
-    protected void paintComponent(Graphics g) {
-        super.paintComponent(g);
-        if (backgroundImage != null) {
-            g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
-        }
+public class MenuPanel extends JPanel {
+    private JPanel backgroundPanel;
+    private JButton newGame;
+    private JButton help;
+    private JButton loadGame;
+    private JButton credits;
+    
+    GameController gameManager = new GameController();
+    
+    public MenuPanel() {
+        initComponents();
+
+        Music.getInstance().startMusic();
     }
-};
+    
+}
 ```
 
 L'interattività è gestita attraverso gli **ActionListener** assegnati ai `JButton`. I pulsanti utilizzano `MetalButtonUI` personalizzata per ottenere l'effetto visivo desiderato.
+
 ```java
-newGameButton.addActionListener(evt -> {
-    gameManager.createGame();
-    Game game = Game.getInstance();
-    new Thread(() -> InputService.setUpGameFlow(game)).start();
-});
+newGame.setUI(new MetalButtonUI() {
+               protected Color getSelectColor() {
+                   return COLD_SELECT_COLOR;
+               }
+        });
+        newGame.setFocusPainted(false);
+        newGame.setBackground(SEMI_TRANSPARENT_BG);
+        newGame.setForeground(COLD_LIGHT);
+        newGame.setFont(new Font("Otacon", Font.BOLD, 24));
+        newGame.setBorderPainted(true);
+        newGame.setBorder(BorderFactory.createLineBorder(COLD_LIGHT, 3));
+        newGame.setText("NUOVA PARTITA");
+        newGame.setOpaque(true);
+        newGame.setContentAreaFilled(true);
+        newGame.setMaximumSize(new Dimension(240, 60));
+        newGame.setMinimumSize(new Dimension(240, 60));
+        newGame.setPreferredSize(new Dimension(240, 60));
+        newGame.addActionListener(this::newGameActionPerformed);
 ```
 
 #### 3. GamePanel - Pannello di gioco principale
@@ -667,30 +764,127 @@ newGameButton.addActionListener(evt -> {
 La classe **GamePanel**, che estende `JPanel`, rappresenta il cuore dell'interfaccia di gioco e comprende:
 
 - **Toolbar** con i seguenti pulsanti: indietro, mappa, salva, aiuto
-- **Pannello immagini con CardLayout**: visualizza le immagini delle 5 stanze
-- **JTextPane con auto-scroll**: per visualizzare la narrazione e l'output dei comandi
-- **JTextArea per l'inventario**: mostra gli oggetti posseduti dal giocatore in tempo reale
-- **JTextField per l'input utente**: permette di inserire i comandi
+
 ```java
-inputField.addActionListener(e -> {
-    String input = inputField.getText().trim();
-    if (!input.isEmpty()) {
-        GameFlowController.setUserInput(input);
-        inputField.setText("");
+public class GamePanel extends JPanel {
+
+    private JButton goBackButton;
+    private JButton saveGameButton;
+    private JButton helpButton;
+    private JButton toggleMapButton;
+
+    private static JPanel imagePanel;
+    private static JTextPane displayTextPane;
+    private JScrollPane scrollPaneDisplayText;
+
+    private static JTextArea inventoryTextArea;
+    private JScrollPane scrollPaneInventoryText;
+
+    private JTextField userInputField;
+    private JToolBar toolBar;
+
+    private static CardLayout cardLayout;
+
+    public GamePanel() {
+        UIManager.put("ScrollBar.width", 12);
+        SwingUtilities.updateComponentTreeUI(this);
+        initComponents();
+        initImagePanel();
     }
-});
+```
+
+- **Pannello immagini con CardLayout**: visualizza le immagini delle 5 stanze
+
+```java
+for(int i = 1; i <= 6; i++) {
+            final int roomNumber = i;
+            final String imagePath = "src/main/resources/img/Stanza" + roomNumber + ".png";
+            imagePanel.add(new JPanel() {
+                @Override
+                protected void paintComponent(Graphics g) {
+                    super.paintComponent(g);
+                    ImageIcon image = new ImageIcon(imagePath);
+                    g.drawImage(image.getImage(), 0, 0, getWidth(), getHeight(), this);
+                }
+            }, "Stanza" + roomNumber);
+        }
+```
+
+- **JTextPane con auto-scroll**: per visualizzare la narrazione e l'output dei comandi
+
+```java
+displayTextPane.setEditable(false);
+        displayTextPane.setFocusable(false);
+        displayTextPane.setFont(new Font("Monospaced", Font.PLAIN, 13));
+        displayTextPane.setBorder(BorderFactory.createEmptyBorder(5, 8, 5, 8));
+        displayTextPane.setOpaque(true);
+        displayTextPane.setBackground(DARK_FOG_CONTENT);
+        displayTextPane.setForeground(COLD_LIGHT);
+        
+        DefaultCaret caret = (DefaultCaret) displayTextPane.getCaret();
+        caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
+
+        scrollPaneDisplayText.setBackground(DARK_FOG_CONTENT);
+        scrollPaneDisplayText.setViewportView(displayTextPane);
+        scrollPaneDisplayText.setPreferredSize(new Dimension(550, 120));
+        scrollPaneDisplayText.setMinimumSize(new Dimension(550, 120));
+        scrollPaneDisplayText.setMaximumSize(new Dimension(550, 120));
+        scrollPaneDisplayText.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        scrollPaneDisplayText.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+        scrollPaneDisplayText.setBorder(BorderFactory.createMatteBorder(5, 5, 5, 0, COLD_LIGHT));
+```
+
+- **JTextArea per l'inventario**: mostra gli oggetti posseduti dal giocatore in tempo reale
+
+```java
+inventoryTextArea.setEditable(false);
+        inventoryTextArea.setOpaque(true);
+        inventoryTextArea.setBackground(DARK_FOG_CONTENT);
+        inventoryTextArea.setForeground(COLD_LIGHT);
+        inventoryTextArea.setFont(new Font("Monospaced", Font.PLAIN, 13));
+        inventoryTextArea.setText(" Inventario:\n");
+        inventoryTextArea.setLineWrap(true);
+        inventoryTextArea.setWrapStyleWord(true);
+
+        scrollPaneInventoryText.setViewportView(inventoryTextArea);
+        scrollPaneInventoryText.setPreferredSize(new Dimension(200, 550));
+        scrollPaneInventoryText.setBorder(BorderFactory.createMatteBorder(0, 5, 5, 5, COLD_LIGHT));
+```
+- **JTextField per l'input utente**: permette di inserire i comandi
+
+```java
+userInputField.setMargin(new Insets(0, 8, 0, 8));
+        userInputField.setForeground(COLD_LIGHT);
+        userInputField.setFont(new Font("Monospaced", Font.PLAIN, 14));
+        userInputField.setOpaque(true);
+        userInputField.setBackground(DARK_FOG_CONTENT);
+        userInputField.setCaretColor(COLD_LIGHT);
+        userInputField.setBorder(BorderFactory.createMatteBorder(0, 5, 5, 0, COLD_LIGHT));
+        userInputField.addActionListener(this::userInputFieldActionPerformed);
+        
+        GameFlowController.startInputListener();
 ```
 
 #### 4. HelpDialog - Finestra di aiuto
 
 La classe **HelpDialog** rappresenta una finestra di dialogo separata, che viene mostrata al click del pulsante "Help", garantendo che l'utente possa consultare le regole senza perdere di vista l'interfaccia principale.
+
 ```java
-public HelpDialog(Frame parent) {
-    super(parent, "Aiuto", true);
-    setSize(600, 400);
-    setLocationRelativeTo(parent);
-    // Configurazione contenuto...
-}
+public class HelpDialog extends JFrame {
+    
+    private static HelpDialog instance;
+    
+    HelpDialog() {
+        initComponents();
+        setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+    }
+    
+    public static HelpDialog getInstance() {
+        if(instance == null) {
+            instance = new HelpDialog();
+        }
+        return instance;
+    }
 ```
 
 #### 5. MapDialog - Mappa interattiva
@@ -701,19 +895,33 @@ La classe **MapDialog** rappresenta una finestra separata, che visualizza una ma
 - Indicazione della stanza corrente
 - Stanze visitate evidenziate
 - Interattività con hover e click
+
 ```java
-@Override
-protected void paintComponent(Graphics g) {
-    super.paintComponent(g);
-    Graphics2D g2d = (Graphics2D) g;
-    g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, 
-                         RenderingHints.VALUE_ANTIALIAS_ON);
-    
-    // Disegna stanze e collegamenti
-    drawRooms(g2d);
-    drawConnections(g2d);
-    highlightCurrentRoom(g2d);
-}
+public class MapDialog extends JFrame {
+
+    private static MapDialog instance;
+
+    private MapPanel mapPanel;
+
+    private MapDialog() {
+        setTitle("Mappa - La Casa di Cenere");
+        setPreferredSize(new Dimension(700, 650));
+        setMinimumSize(new Dimension(700, 650));
+        setResizable(false);
+        setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+        getContentPane().setBackground(new Color(30, 30, 35));
+
+        mapPanel = new MapPanel(Game.getInstance());
+        add(mapPanel);
+        pack();
+    }
+
+    public static MapDialog getInstance() {
+        if (instance == null) {
+            instance = new MapDialog();
+        }
+        return instance;
+    }
 ```
 
 ##### Caratteristiche chiave dell'interfaccia:
@@ -741,12 +949,11 @@ Il thread viene avviato nel metodo `startInputListener()`, dove viene creata un'
 public static void startInputListener() {
     new Thread(() -> {
         while (true) {
+            if (!isUserInputEmpty()) {
+                InputService.gameFlow(input);
+            }
             try {
                 Thread.sleep(100);
-                if (!isUserInputEmpty()) {
-                    String input = getUserInput();
-                    InputService.gameFlow(input);
-                }
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -773,41 +980,11 @@ Questo approccio consente di mantenere la GUI completamente reattiva mentre il g
 - **PAUSA**: esegue una pausa (sleep) senza bloccare l'interfaccia principale
 
 Estendendo la classe `Thread`, ogni istanza di `TextAnimator` rappresenta un'animazione indipendente, che può essere avviata con il metodo `start()` ed eseguita in parallelo al resto dell'applicazione.
+
 ```java
 public class TextAnimator extends Thread {
-    private String text;
-    private int duration;
-    private AnimationType type;
+
     private static boolean isWriting = false;
-    
-    public enum AnimationType {
-        SCRITTURA,
-        PAUSA
-    }
-    
-    @Override
-    public void run() {
-        try {
-            if (type == AnimationType.SCRITTURA) {
-                synchronized (TextAnimator.class) {
-                    while (isWriting) {
-                        Thread.sleep(50);
-                    }
-                    isWriting = true;
-                }
-                effettoScritturaGUI();
-            } else if (type == AnimationType.PAUSA) {
-                Thread.sleep(duration);
-            }
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } finally {
-            synchronized (TextAnimator.class) {
-                isWriting = false;
-            }
-        }
-    }
-}
 ```
 
 Per controllare l'esecuzione degli effetti di scrittura, la classe utilizza un flag statico (`isWriting`) che indica se è attualmente attivo un thread di animazione del testo. Tale variabile è gestita all'interno di blocchi sincronizzati per garantire l'accesso concorrente sicuro ed evitare la sovrapposizione di più effetti di scrittura simultanei.
@@ -828,24 +1005,35 @@ Nel nostro progetto abbiamo implementato un server REST locale utilizzando **Gri
 #### 1. RestServer - Avvio del server
 
 La classe **RestServer** gestisce l'avvio e la configurazione del server Grizzly sulla porta 8080.
+
 ```java
 public class RestServer {
-    private static final String BASE_URI = "http://localhost:8080/";
+    private HttpServer server;
     
-    public static HttpServer startServer() {
-        final HttpServer server = HttpServerFactory.createHttpServer(BASE_URI);
-        server.getServerConfiguration().addHttpHandler(
-            new CreditsHandler(), "/api/credits"
-        );
+    public void startServer() throws IOException {
+        server = HttpServer.createSimpleServer("/", 8080);
+        ServerConfiguration config = server.getServerConfiguration();
         
-        try {
-            server.start();
-            System.out.println("Server REST avviato su: " + BASE_URI);
-        } catch (IOException e) {
-            e.printStackTrace();
+        config.addHttpHandler(new CreditsHandler(), "/api/credits");
+        
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            server.shutdownNow();
+        }));
+
+        new Thread(() -> {
+            try {
+                server.start();
+                Thread.currentThread().join();
+            } catch (IOException | InterruptedException e) {
+                e.printStackTrace();
+            }
+        }).start();
+    }
+    
+    public void stopServer() {
+        if (server != null) {
+            server.shutdownNow();
         }
-        
-        return server;
     }
 }
 ```
@@ -858,41 +1046,29 @@ Il server viene configurato per:
 - Chiudersi automaticamente quando l'applicazione termina
 
 Il server viene avviato automaticamente all'avvio dell'applicazione nel `main()`:
+
 ```java
-public static void main(String[] args) {
-    RestServer.startServer();
-    SwingUtilities.invokeLater(() -> new MainFrame());
+try {
+    RestServer server = new RestServer();
+    server.startServer();
+} catch (Exception e) {
+    System.err.println("Errore nell'avvio del server REST: " + e.getMessage());
+    e.printStackTrace();
 }
 ```
 
 #### 2. CreditsHandler - Gestione dell'endpoint
 
 La classe **CreditsHandler** estende `HttpHandler` e gestisce le richieste HTTP all'endpoint `/api/credits`:
+
 ```java
 public class CreditsHandler extends HttpHandler {
+    
     @Override
     public void service(Request request, Response response) throws Exception {
         response.setHeader("Access-Control-Allow-Origin", "*");
         response.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
         response.setHeader("Access-Control-Allow-Headers", "Content-Type");
-        
-        if (request.getMethod().toString().equalsIgnoreCase("OPTIONS")) {
-            response.setStatus(200);
-            return;
-        }
-        
-        if (!request.getMethod().toString().equalsIgnoreCase("GET")) {
-            sendErrorResponse(response, 405, "Metodo non permesso");
-            return;
-        }
-        
-        try {
-            sendHtmlResponse(response);
-        } catch (Exception e) {
-            sendErrorResponse(response, 500, "Errore interno del server");
-        }
-    }
-}
 ```
 
 Il metodo `service()` implementa la logica REST completa:
@@ -907,14 +1083,19 @@ Il metodo `sendHtmlResponse()` prepara ed invia la risposta HTTP, che include:
 - **Status code 200**: indica che la richiesta è stata elaborata con successo
 - **Content-Type**: specifica che il contenuto è HTML con encoding UTF-8
 - **Body**: contiene l'HTML generato dinamicamente dal metodo `generateHtml()`
+
 ```java
 private void sendHtmlResponse(Response response) throws IOException {
-    response.setStatus(200);
-    response.setContentType("text/html; charset=UTF-8");
-    
-    String html = generateHtml();
-    response.getWriter().write(html);
-}
+        response.setStatus(200);
+        response.setContentType("text/html; charset=UTF-8");
+        response.setCharacterEncoding("UTF-8");
+        
+        String html = generateHtml();
+        
+        OutputStream out = response.getOutputStream();
+        out.write(html.getBytes(StandardCharsets.UTF_8));
+        out.flush();
+    }
 ```
 
 Il metodo `generateHtml()` costruisce la pagina HTML che include:
@@ -922,52 +1103,73 @@ Il metodo `generateHtml()` costruisce la pagina HTML che include:
 - **Stili CSS inline**: permettono di creare un design coerente con l'atmosfera gotica del gioco senza file esterni
 - **Struttura semantica**: utilizza tag HTML appropriati (h1, h2, ul, li) per una corretta organizzazione del contenuto
 - **Design responsive**: layout centrato con larghezza massima per ottimale visualizzazione su schermi di diverse dimensioni
-```java
-private String generateHtml() {
-    return "<!DOCTYPE html>" +
-           "<html>" +
-           "<head>" +
-           "<meta charset='UTF-8'>" +
-           "<title>Riconoscimenti - La Casa di Cenere</title>" +
-           "<style>" +
-           "body { font-family: 'Georgia', serif; " +
-           "background: linear-gradient(135deg, #2c3e50, #34495e); " +
-           "color: #ecf0f1; margin: 0; padding: 20px; }" +
-           "/* Altri stili... */" +
-           "</style>" +
-           "</head>" +
-           "<body>" +
-           "<div class='container'>" +
-           "<h1>La Casa di Cenere</h1>" +
-           "<h2>Riconoscimenti</h2>" +
-           "<!-- Contenuto crediti -->" +
-           "</div>" +
-           "</body>" +
-           "</html>";
-}
-```
+
 
 Il server implementa una gestione completa degli errori HTTP con il metodo `sendErrorResponse()`:
+
 ```java
-private void sendErrorResponse(Response response, int statusCode, String message) 
-        throws IOException {
-    response.setStatus(statusCode);
-    response.setContentType("text/plain; charset=UTF-8");
-    response.getWriter().write(message);
-}
+private void sendErrorResponse(Response response, int statusCode, String message) throws IOException {
+        response.setStatus(statusCode);
+        response.setContentType("text/html; charset=UTF-8");
+        response.setCharacterEncoding("UTF-8");
+        
+        StringBuilder errorHtml = new StringBuilder();
+        
+        OutputStream out = response.getOutputStream();
+        out.write(errorHtml.toString().getBytes(StandardCharsets.UTF_8));
+        out.flush();
+    }
 ```
 
 Nel menu principale del gioco, **MenuPanel**, è presente il bottone "RICONOSCIMENTI", che effettua una richiesta al server REST locale:
+
 ```java
-creditsButton.addActionListener(evt -> {
-    try {
-        Desktop.getDesktop().browse(
-            new URI("http://localhost:8080/api/credits")
-        );
-    } catch (Exception e) {
-        e.printStackTrace();
-    }
-});
+private void creditsActionPerformed(ActionEvent evt) {
+        try {
+            String apiUrl = "http://localhost:8080/api/credits";
+        
+            if (java.awt.Desktop.isDesktopSupported()) {
+                java.awt.Desktop desktop = java.awt.Desktop.getDesktop();
+            
+                if (desktop.isSupported(java.awt.Desktop.Action.BROWSE)) {
+                    desktop.browse(new java.net.URI(apiUrl));
+                } else {
+                    showMessageDialog(this, 
+                        "Il sistema non supporta l'apertura del browser.\n" +
+                        "Apri manualmente: " + apiUrl, 
+                        "Info", 
+                        JOptionPane.INFORMATION_MESSAGE);
+                }
+            } else {
+                showMessageDialog(this, 
+                    "Desktop non supportato su questo sistema.\n" +
+                    "Apri manualmente: " + apiUrl, 
+                    "Info", 
+                    JOptionPane.INFORMATION_MESSAGE);
+         }
+        private void creditsActionPerformed(ActionEvent evt) {
+        try {
+            String apiUrl = "http://localhost:8080/api/credits";
+        
+            if (java.awt.Desktop.isDesktopSupported()) {
+                java.awt.Desktop desktop = java.awt.Desktop.getDesktop();
+            
+                if (desktop.isSupported(java.awt.Desktop.Action.BROWSE)) {
+                    desktop.browse(new java.net.URI(apiUrl));
+                } else {
+                    showMessageDialog(this, 
+                        "Il sistema non supporta l'apertura del browser.\n" +
+                        "Apri manualmente: " + apiUrl, 
+                        "Info", 
+                        JOptionPane.INFORMATION_MESSAGE);
+                }
+            } else {
+                showMessageDialog(this, 
+                    "Desktop non supportato su questo sistema.\n" +
+                    "Apri manualmente: " + apiUrl, 
+                    "Info", 
+                    JOptionPane.INFORMATION_MESSAGE);
+         }
 ```
 
 Quando l'utente clicca sul bottone:
