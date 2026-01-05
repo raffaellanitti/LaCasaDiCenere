@@ -638,7 +638,7 @@ public class MainFrame extends JFrame {
 Questo layout agisce come una pila di schede, permettendo di mostrare solo un pannello alla volta.
 
 
-### 2. MenuPanel - Menu principale
+#### 2. MenuPanel - Menu principale
 
 La classe **MenuPanel**, che estende `JPanel`, presenta il menu iniziale con sfondo personalizzato e pulsanti stilizzati.
 ```java
@@ -662,7 +662,7 @@ newGameButton.addActionListener(evt -> {
 });
 ```
 
-### 3. GamePanel - Pannello di gioco principale
+#### 3. GamePanel - Pannello di gioco principale
 
 La classe **GamePanel**, che estende `JPanel`, rappresenta il cuore dell'interfaccia di gioco e comprende:
 
@@ -681,7 +681,7 @@ inputField.addActionListener(e -> {
 });
 ```
 
-### 4. HelpDialog - Finestra di aiuto
+#### 4. HelpDialog - Finestra di aiuto
 
 La classe **HelpDialog** rappresenta una finestra di dialogo separata, che viene mostrata al click del pulsante "Help", garantendo che l'utente possa consultare le regole senza perdere di vista l'interfaccia principale.
 ```java
@@ -693,7 +693,7 @@ public HelpDialog(Frame parent) {
 }
 ```
 
-### 5. MapDialog - Mappa interattiva
+#### 5. MapDialog - Mappa interattiva
 
 La classe **MapDialog** rappresenta una finestra separata, che visualizza una mappa grafica delle stanze con:
 
@@ -716,7 +716,7 @@ protected void paintComponent(Graphics g) {
 }
 ```
 
-#### Caratteristiche chiave dell'interfaccia:
+##### Caratteristiche chiave dell'interfaccia:
 
 - **Palette colori coerente**: uso di colori freddi (azzurro/grigio) per creare un'atmosfera gotica
 - **Layout responsivo**: utilizzo di `GroupLayout` per posizionamento preciso dei componenti
@@ -728,11 +728,11 @@ L'interfaccia Swing offre un'esperienza utente completa e immersiva, integrando 
 
 ---
 
-## 6. Thread e Programmazione Concorrente
+### 6. Thread e Programmazione Concorrente
 
 Abbiamo utilizzato i **Thread** per la gestione dell'input da parte dell'utente e l'animazione del testo.
 
-### 1. GameFlowController - Thread di ascolto dell'input
+#### 1. GameFlowController - Thread di ascolto dell'input
 
 **GameFlowController** è una classe che impiega esplicitamente un thread dedicato per monitorare in modo continuo l'input dell'utente senza bloccare l'interfaccia grafica o il resto del flusso di gioco.
 
@@ -765,7 +765,7 @@ Il thread dedicato esegue il seguente comportamento:
 
 Questo approccio consente di mantenere la GUI completamente reattiva mentre il gioco controlla costantemente l'input senza bloccare il thread principale.
 
-### 2. TextAnimator - Thread per animazione del testo
+#### 2. TextAnimator - Thread per animazione del testo
 
 **TextAnimator** è una classe che estende `Thread` e serve per creare piccoli effetti di animazione del testo sulla GUI:
 
@@ -821,11 +821,11 @@ Al termine dell'animazione, la variabile `isWriting` viene riportata a `false` n
 
 ---
 
-## 7. Socket e/o REST
+### 7. Socket e/o REST
 
 Nel nostro progetto abbiamo implementato un server REST locale utilizzando **Grizzly HTTP Server** per esporre un endpoint che visualizza i crediti del gioco.
 
-### 1. RestServer - Avvio del server
+#### 1. RestServer - Avvio del server
 
 La classe **RestServer** gestisce l'avvio e la configurazione del server Grizzly sulla porta 8080.
 ```java
@@ -865,7 +865,7 @@ public static void main(String[] args) {
 }
 ```
 
-### 2. CreditsHandler - Gestione dell'endpoint
+#### 2. CreditsHandler - Gestione dell'endpoint
 
 La classe **CreditsHandler** estende `HttpHandler` e gestisce le richieste HTTP all'endpoint `/api/credits`:
 ```java
@@ -989,5 +989,3 @@ Durante lo sviluppo abbiamo imparato a organizzare meglio il lavoro, a collabora
 Questo progetto per noi rappresenta non solo un gioco, ma un percorso: fatto di problemi risolti, idee cambiate in corsa e tante soddisfazioni. "La Casa di Cenere" è il risultato di ciò che abbiamo imparato e della voglia di creare qualcosa di nostro, e speriamo che chi lo gioca possa ritrovare almeno un po' del divertimento che noi abbiamo messo nel realizzarlo.
 
 ---
-
-**Fine della Documentazione**
