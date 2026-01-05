@@ -2,6 +2,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
+
 package it.uniba.lacasadicenere.util;
 
 import javax.sound.sampled.*;
@@ -9,12 +10,15 @@ import java.io.BufferedInputStream;
 import java.io.InputStream;
 
 /**
- * Gestisce la riproduzione della musica di sottofondo del gioco.
+ * Classe che gestisce la riproduzione della musica di sottofondo del gioco.
  * Usa il pattern Singleton per garantire una sola istanza.
  */
 public class Music {
+
     private static Music instance;
+
     private Clip clip;
+
     private boolean isPlaying = false;
 
     private static final String MUSIC_FILE_PATH = "/audio/music.wav";
@@ -25,7 +29,6 @@ public class Music {
 
     private void loadMusic() {
         try {
-    
             InputStream audioSrc = getClass().getResourceAsStream(MUSIC_FILE_PATH);
             
             if(audioSrc == null) {

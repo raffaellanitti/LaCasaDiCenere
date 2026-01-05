@@ -60,7 +60,6 @@ public class MenuPanel extends JPanel {
         final Color COLD_SELECT_COLOR = new Color(100, 120, 140, 100); 
         final Color FOG_BACKGROUND = new Color(30, 30, 35);
         
-        // Background panel con immagine caricata dal classpath
         backgroundPanel = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {

@@ -22,6 +22,7 @@ import java.util.Set;
 public class MapDialog extends JFrame {
 
     private static MapDialog instance;
+
     private MapPanel mapPanel;
 
     private MapDialog() {
@@ -37,6 +38,10 @@ public class MapDialog extends JFrame {
         pack();
     }
 
+    /**
+     * Restituisce l'istanza singleton della mappa.
+     * @return l'istanza di MapDialog.
+     */
     public static MapDialog getInstance() {
         if (instance == null) {
             instance = new MapDialog();
@@ -44,6 +49,9 @@ public class MapDialog extends JFrame {
         return instance;
     }
 
+    /**
+     * Aggiorna la mappa in base allo stato attuale del gioco.
+     */
     public void updateMap() {
         if (mapPanel != null) {
             mapPanel.updateMap();

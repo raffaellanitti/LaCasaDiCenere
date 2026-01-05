@@ -2,6 +2,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
+
 package it.uniba.lacasadicenere.type;
 
 import it.uniba.lacasadicenere.model.Item;
@@ -114,6 +115,7 @@ public class ParserOutput {
                 (item1 != null ? item1.equals(that.item1) : that.item1 == null) &&
                 (item2 != null ? item2.equals(that.item2) : that.item2 == null);
     }
+
     /**
      * Metodo hashCode per generare un codice hash per l'oggetto ParserOutput.
      */          

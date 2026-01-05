@@ -2,13 +2,14 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
+
 package it.uniba.lacasadicenere.service;
 
 import it.uniba.lacasadicenere.view.GamePanel;
 import it.uniba.lacasadicenere.view.MapDialog;
 
 /**
- * Gestisce l'input dell'utente.
+ * Classe che gestisce l'input dell'utente.
  */
 public class GameFlowController {
 
@@ -25,11 +26,10 @@ public class GameFlowController {
      */
     public static void updateMap() {
         MapDialog mapDialog = MapDialog.getInstance();
-        if (mapDialog.isVisible()) {
+        if (mapDialog != null && mapDialog.isVisible()) {
             mapDialog.updateMap();
         }
     }
-
 
     /**
      * Restituisce l'input corrente e svuota il buffer

@@ -2,6 +2,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
+
 package it.uniba.lacasadicenere.model;
 
 import it.uniba.lacasadicenere.type.CommandType;
@@ -62,6 +63,5 @@ public class Command {
      */
     public CommandType getType() {
         return this.type;
-    }
-    
+    } 
 }

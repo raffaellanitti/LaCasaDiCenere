@@ -2,6 +2,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
+
 package it.uniba.lacasadicenere.model;
 
 import it.uniba.lacasadicenere.type.CommandType;
@@ -39,6 +40,7 @@ public class RoomConnection {
     public Room getStartingRoom() {
         return startingRoom;
     }
+    
     /**
      * Imposta la stanza di partenza
      * @param room 
@@ -54,6 +56,7 @@ public class RoomConnection {
     public Room getArrivingRoom() {
         return arrivingRoom;
     }
+
     /**
      * Imposta la stanza di destinazione
      * @param room 
@@ -69,6 +72,7 @@ public class RoomConnection {
     public CommandType getDirection() {
         return direction;
     }
+
     /**
      * Imposta la direzione della connessione
      * @param direction 
@@ -84,6 +88,7 @@ public class RoomConnection {
     public boolean isLocked() {
         return locked;
     }
+
     /**
      * Imposta lo stato di blocco della connessione
      * @param locked 

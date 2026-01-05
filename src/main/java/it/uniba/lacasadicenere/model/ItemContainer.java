@@ -1,3 +1,8 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
+
 package it.uniba.lacasadicenere.model;
 
 import java.util.ArrayList;
@@ -57,6 +62,7 @@ public class ItemContainer extends Item {
     public void remove(Item item) {
         list.remove(item);
     }
+
     /**
      * Verifica se il contenitore è aperto.
      * @return true se aperto, false se chiuso
@@ -72,5 +78,4 @@ public class ItemContainer extends Item {
     public void setOpen(boolean open) {
         this.isOpen = open;
     }
-    
 }

@@ -2,10 +2,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
+
 package it.uniba.lacasadicenere.controller;
 
 import it.uniba.lacasadicenere.database.DatabaseH2;
@@ -22,7 +19,7 @@ import it.uniba.lacasadicenere.type.CommandAction;
 import java.util.HashMap;
 
 /**
- * Esegue i comandi del gioco in base all'input parsato dall'utente.
+ * Classe che esegue i comandi del gioco in base all'input parsato dall'utente.
  */
 public class CommandHandler {
     

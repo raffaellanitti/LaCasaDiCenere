@@ -2,6 +2,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
+
 package it.uniba.lacasadicenere.service;
 
 import it.uniba.lacasadicenere.view.GamePanel;
@@ -10,7 +11,7 @@ import it.uniba.lacasadicenere.util.TextAnimator;
 import java.awt.FontMetrics;
 
 /**
- * Gestisce la visualizzazione del testo nella GUI, 
+ * Classe che gestisce la visualizzazione del testo nella GUI, 
  * formattando correttamente il testo con word wrapping.
  */
 public class OutputService {
